@@ -1,3 +1,22 @@
+.DS_Store
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+Qindex.Rproj
+R/.DS_Store
+R/.Rapp.history
+inst/.DS_Store
+inst/extdev
+inst/extplayground
+inst/extvignettes
+inst/erjia_supplements
+inst/extexample/.DS_Store
+inst/extexample/.Rapp.history
+inst/extexample/.Rhistory
+vignettes
+
+
 # History files
 .Rhistory
 .Rapp.history
