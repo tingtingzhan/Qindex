@@ -177,6 +177,8 @@ optimSplit_dichotom <- function(
     return(as.function.default(r0))
   }, rule = mssd$rule, nm = colnames(X))
   
+  names(ret_rule) <- colnames(X)
+  
   if (!missing(include)) {
     id_excl <- !eval(call(name = 'with.default', data = quote(mssd), expr = substitute(include)))
     mssd$coef[id_excl] <- NA_real_
@@ -186,12 +188,6 @@ optimSplit_dichotom <- function(
   if (anyNA(mssd$coef[id_top])) stop('Decrease `top` (containing coef\'s which do not satisfy `include`)')
 
   ret <- ret_rule[id_top]
-  
-  # to be removed!!!  
-  #nm_top <- colnames(X)[id_top]
-  #names(ret) <- nm_top
-  # end of to be removed!!!
-  
   attr(ret, which = 'formula') <- formula
   attr(ret, which = 'data') <- data
   #attr(ret, which = 'call') <- cl

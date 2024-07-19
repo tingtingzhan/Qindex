@@ -1,2 +1,10 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
+inst/extdev
+inst/extplayground
+inst/extvignettes
+inst/erjia_supplements
+inst/extexample/.DS_Store
+inst/extexample/.Rapp.history
+inst/extexample/.Rhistory
+vignettes
