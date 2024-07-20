@@ -1,31 +1,25 @@
 
-
-# best explanation!!!
-# ~ 1 | c1/c2 
-# https://stats.stackexchange.com/questions/228800/crossed-vs-nested-random-effects-how-do-they-differ-and-how-are-they-specified
-
-
-
 #' @title Cluster-Specific Sample Quantiles
 #'  
 #' @description
 #' Sample \link[stats]{quantile}s in each cluster of observations.
 #' 
-#' @param formula \link[stats]{formula}, see details in \link[stats]{aggregate.formula}.
-#' End user may use following formulas 
-#' to specify the response \eqn{y}, cluster(s) \eqn{c}'s and covariate(s) \eqn{x}'s 
+#' @param formula \link[stats]{formula}
+#' to specify the response \eqn{y}, cluster(s) \eqn{c}'s, 
+#' cluster-specific covariate(s) \eqn{x}'s to be retained, and
+#' cluster-specific covariate(s) \eqn{z}'s to be removed 
+#' from `data`, e.g.,
 #' \describe{
 #' \item{`y ~ 1 | c1`}{cluster \eqn{c_1}, without cluster-specific covariate}
 #' \item{`y ~ 1 | c1/c2`}{cluster \eqn{c_1}, and cluster \eqn{c_2} nested in \eqn{c_1}, without cluster-specific covariate}
 #' \item{`y ~ x1 + x2 | c1`}{cluster \eqn{c_1}, and cluster-specific covariates \eqn{x_1} and \eqn{x_2}}
-#' \item{`y ~ x1 + x2 | c1/c2`}{cluster \eqn{c_1}, cluster \eqn{c_2} nested in \eqn{c_1}, and cluster (\eqn{c_2} at least) specific covariates \eqn{x_1} and \eqn{x_2}}
-#' \item{`y ~ .  | c1`}{cluster \eqn{c_1}, and all (supposedly cluster-specific) covariates from `data`}
-#' \item{`y ~ .  | c1/c2`}{cluster \eqn{c_1}, cluster \eqn{c_2} nested in \eqn{c_1}, and all (supposedly cluster-specific) covariates from `data`}
+# \item{`y ~ x1 + x2 | c1/c2`}{cluster \eqn{c_1}, cluster \eqn{c_2} nested in \eqn{c_1}, and cluster (\eqn{c_2} at least) specific covariates \eqn{x_1} and \eqn{x_2}}
+#' \item{`y ~ . | c1`}{cluster \eqn{c_1}, and all (supposedly cluster-specific) covariates from `data`}
+# \item{`y ~ . | c1/c2`}{cluster \eqn{c_1}, cluster \eqn{c_2} nested in \eqn{c_1}, and all (supposedly cluster-specific) covariates from `data`}
+#' \item{`y ~ . - z1 - z2 | c1`}{cluster \eqn{c_1}, and all (supposedly cluster-specific) covariates, except for \eqn{z_1} and \eqn{z_2}, from `data`}
 #' }
 #' 
-#' @param data \link[base]{data.frame}, 
-#' containing 
-#' the response \eqn{y}, cluster(s) \eqn{c}'s and covariate(s) \eqn{x}'s 
+#' @param data \link[base]{data.frame}
 #' 
 # @param FUN \link[base]{character} scalar, name of
 # \link[base]{function} for summary statistics, 
@@ -33,33 +27,53 @@
 # \link[np]{npquantile} (`'npquantile'`), or 
 # using \link[np]{npquantile} only if sample size is less or equal to 100 (`'npquantile100'`).
 #' 
-#' @param exclude (optional) \link[base]{character} \link[base]{vector}, 
-#' variable(s) excluded from aggregation,
-#' e.g., use `exclude = c('z1', 'z2')`
-#' to exclude variables \eqn{z_1} and \eqn{z_2}
-#' 
-#' @param aggregateQp \link[base]{function} used to aggregate the \link[stats]{quantile}s from 
-#' cluster \eqn{c_2} (if present). Choices include \link[base]{mean}, \link[base]{max} and \link[base]{min}.
+#' @param f_sum_ \link[base]{function} to summarize the sample \link[stats]{quantile}s from 
+#' lower-level cluster \eqn{c_2} (if present), 
+#' such as \link[base]{mean} (default), \link[stats]{median}, \link[base]{max}, \link[base]{min}, etc.
 #' 
 #' @param from,to,by \link[base]{double} scalars,
 #' the starting, end, and increment values
-#' to specify a \link[base]{seq}uence of probabilities 
-#' \eqn{p = (p_1,\cdots,p_N)'}
-#' for the sample \link[stats]{quantile}s \eqn{q = (q_1,\cdots,q_N)'}
+#' of a probability \link[base]{seq}uence
+#' \eqn{\mathbf{p} = (p_1,\cdots,p_N)'}
+#' *shared for all clusters*,
+#' where the cluster-specific sample \link[stats]{quantile}s 
+#' \eqn{\mathbf{q} = (q_1,\cdots,q_N)'} of response \eqn{y} are calculated
 #' 
-#' @param type \link[base]{integer} scalar, `type` of \link[stats]{quantile} algorithm
+#' @param type \link[base]{integer} scalar, see argument `type` of function \link[stats]{quantile}
 #' 
 #' @param ... additional parameters, currently not in use
 #' 
-#' @details 
-#' Function [clusterQp] calculates \eqn{N} sample \link[stats]{quantile}s 
-#' in each \link[stats]{aggregate}d cluster of observations.
+# @details 
+# Function [clusterQp] calculates \eqn{N} sample \link[stats]{quantile}s 
+# in each \link[stats]{aggregate}d cluster of observations.
 #' 
 #' @returns 
-#' Function [clusterQp] returns an \link[stats]{aggregate}d \link[base]{data.frame}.
-#' A \link[base]{double} \link[base]{matrix} of \eqn{N} columns is created to store  
-#' the sample \link[stats]{quantile}s \eqn{q} of each \link[stats]{aggregate}d cluster.
-#' The column names of this \link[stats]{quantile} \link[base]{matrix} are the probabilities \eqn{p}.
+#' Function [clusterQp] returns an \link[stats]{aggregate}d \link[base]{data.frame},
+#' in which 
+#' 
+#' \itemize{
+#' 
+#' \item {cluster(s) \eqn{c}'s and cluster-specific covariate(s) \eqn{x}'s 
+#' are retained. 
+#' \itemize{
+#' \item {If the input `formula` takes form of `y ~ . | c1` or `y ~ . - z1 | c1`,
+#' then all covariates (except for \eqn{z_1}) are considered cluster-specific thus are all retained;}
+#' \item {**Currently**, only the highest cluster \eqn{c_1} is retained. 
+#' Sample quantiles from lower-level clusters are summarized using `f_sum_`.}
+#' }
+#' }
+#' 
+#' \item {response \eqn{y} is removed; instead,  a \link[base]{double} \link[base]{matrix} of \eqn{N} columns stores
+#' the cluster-specific sample \link[stats]{quantile}s \eqn{\mathbf{q}} of the response \eqn{y}.
+#' This \link[base]{matrix}
+#' \itemize{
+#' \item {is named after the \link[base]{parse}d \link[base]{expression} of response \eqn{y} in `formula`;}
+#' \item {\link[base]{colnames} are the probabilities \eqn{\mathbf{p}}, for the ease of subsequent programming.}
+#' }
+#' }
+#' 
+#' }
+#' 
 #' 
 #' @examples 
 #' # see ?`Qindex-package` for examples
@@ -68,22 +82,15 @@
 #' @importFrom stats aggregate quantile update.formula terms.formula
 #' @export
 clusterQp <- function(
-    formula,
-    data,
+    formula, data,
     # FUN = c('npquantile100', 'quantile', 'npquantile'),
-    exclude = character(),
-    aggregateQp = mean, # max, min
+    f_sum_ = mean, # max, min # old variable name `aggregateQp`
     from = .01, to = .99, by = .01,
     type = 7,
     ...
 ) {
   
   # if (anyNA(data)) # okay to have NA in `data`
-  
-  if (length(exclude)) {
-    if (!is.character(exclude) || anyNA(exclude)) stop('illegal `exclude`')
-    data[exclude] <- NULL
-  } #else do nothing
   
   if (!is.symbol(y <- formula[[2L]])) stop('Variable to be aggregated ', sQuote(deparse1(y)), ' must be `symbol`')
   
@@ -96,7 +103,7 @@ clusterQp <- function(
   fomx_new <- Reduce(
     f = function(e1, e2) call('-', e1, e2), 
     init = quote(.),
-    x = lapply(c(all.vars(y), all.vars(cls_call)), FUN = as.symbol)
+    x = lapply(c(as.character(y), all.vars(cls_call)), FUN = as.symbol)
   )
   fomx <- update.formula(
     old = terms.formula(call('~', formula[[3L]][[2L]]), data = data), 
@@ -136,7 +143,7 @@ clusterQp <- function(
       out <- unique.data.frame(out0)
       if (nrow(out) != 1) stop('wont happen')
       out[[y]] <- array(
-        data = apply(tmp[[y]], MARGIN = 2L, FUN = aggregateQp, simplify = TRUE),
+        data = apply(tmp[[y]], MARGIN = 2L, FUN = f_sum_, simplify = TRUE),
         dim = c(1L, dim(tmp[[y]])[2L]))
       return(out)
     })
@@ -151,5 +158,9 @@ clusterQp <- function(
 }
 
 
+
+# best explanation!!!
+# ~ 1 | c1/c2 
+# https://stats.stackexchange.com/questions/228800/crossed-vs-nested-random-effects-how-do-they-differ-and-how-are-they-specified
 
 
