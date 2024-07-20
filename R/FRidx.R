@@ -6,7 +6,7 @@ setOldClass('gam.prefit')
 #' 
 #' @description
 #' Functional regression indices 
-#' based on linear and/or nonlinear functional predictors.
+#' based on linear or nonlinear functional predictors.
 #' 
 #' @slot .Data \link[base]{double} \link[base]{vector},
 #' functional regression indices, see section **Details**.
@@ -31,7 +31,7 @@ setOldClass('gam.prefit')
 #' based on slot `@gam`
 #' 
 #' @slot sign \link[base]{double} scalar of either 1 or -1, 
-#' see Step 3 in section **Details**.
+#' see Step 2 in section **Details**.
 #' 
 #' @name FRidx
 #' @aliases FRidx-class
@@ -48,37 +48,33 @@ setClass(Class = 'FRidx', contains = 'numeric', slots = c(
 
 #' @rdname FRidx
 #' 
-#' @param formula a two-sided \link[stats]{formula}.
-#' \describe{
-#' \item{Left-hand-side}{is the \link[base]{name} of the response \eqn{y}. 
-#' Supported types of responses are \link[base]{double}, \link[base]{logical} and \link[survival]{Surv}.}
-#' \item{Right-hand-side}{is the \link[base]{name} 
-#' of the tabulated \link[base]{double} \link[base]{matrix} \eqn{X} of functional predictor values.
-#' Each row of \eqn{X} represents the tabulated values for a subject.
-#' All rows/subjects are tabulated on a common `xgrid`.
-#' Each column of \eqn{X} represents the tabulated values at a point on the common `xgrid` for each subject.}
-#' }
+#' @param formula a two-sided \link[stats]{formula} `y ~ X`. 
+#' Types of response \eqn{y} may be \link[base]{double}, \link[base]{logical} and \link[survival]{Surv}.
+#' Functional predictor \eqn{X} is a tabulated \link[base]{double} \link[base]{matrix};
+#' the rows of \eqn{X} correspond to the subjects, 
+#' while the columns of \eqn{X} correspond to a *common tabulating grid* shared by all subjects.
+#' The \link[base]{numeric} values of the grid are in the \link[base]{colnames} of \eqn{X}
 #' 
-#' @param data \link[base]{data.frame} (e.g., returned from function [clusterQp]), with 
-#' the response \eqn{y} and the tabulated functional predictor values \eqn{X}
-#' specified in `formula`.
+#' @param data \link[base]{data.frame}, e.g., returned from function [clusterQp]
 #' 
 #' @param sign_prob \link[base]{double} scalar between 0 and 1,
-#' probability corresponding to the selected nearest-even quantile in `xgrid`, 
-#' which is used to determine the \link[base]{sign} of the (nonlinear) functional regression indices.
-#' Default is `.5`, i.e., the nearest-even \link[stats]{median} of `xgrid`
+#' probability corresponding to 
+#' the selected nearest-even \link[stats]{quantile} in the grid, 
+#' which is used to determine the \link[base]{sign} of the (non)linear functional regression indices.
+#' Default is `.5`, i.e., the nearest-even \link[stats]{median} of the grid
 #' 
 #' @param family \link[stats]{family} object, 
 #' see function \link[mgcv]{gam}.
 #' Default values are
 #' \itemize{
-#' \item `mgcv::cox.ph()` for \link[survival]{Surv} endpoint;
-#' \item `binomial(link = 'logit')` for \link[base]{logical} endpoint;
-#' \item `gaussian(link = 'identity')` for \link[base]{double} endpoint.
+#' \item `mgcv::cox.ph()` for \link[survival]{Surv} response \eqn{y};
+#' \item `binomial(link = 'logit')` for \link[base]{logical} response \eqn{y};
+#' \item `gaussian(link = 'identity')` for \link[base]{double} response \eqn{y}
 #' }
 #' 
 #' @param nonlinear \link[base]{logical} scalar, 
-#' default `FALSE` indicating a linear functional regression model is used
+#' whether to use nonlinear or linear functional regression model.
+#' Default `FALSE`
 #' 
 #' @param knot_pct (only when `nonlinear = FALSE`) 
 #' positive \link[base]{double} scalar, 
@@ -108,30 +104,25 @@ setClass(Class = 'FRidx', contains = 'numeric', slots = c(
 #' 
 #' \item Fit a functional regression model (via function \link[mgcv]{gam}) 
 #' to the response \eqn{y} 
-#' using the functional predictor \eqn{X}.
-#' 
-#' \item Select one point in the tabulating `xgrid`.
-#' For one-dimensional domain, 
-#' we select the nearest-even \link[stats]{quantile} of the tabulating `xgrid`,
-#' corresponding to the user-specified probability `sign_prob`.
-#' Default `sign_prob = .5` indicates the \link[stats]{median} of `xgrid`.
+#' using the functional predictor \eqn{X};
 #' 
 #' \item Obtain the \link[base]{sign} of the \link[stats]{cor}relation between 
 #' \itemize{
-#' \item the subject-specific functional predictor values \eqn{X}, 
-#' at the selected quantile of `xgrid` (from Step 2), and
-#' \item the subject-specific `gam(.)$linear.predictors`
+#' \item {\eqn{X_{\cdot,j}}, 
+#' the user-selected \eqn{j}-th column of functional predictor \eqn{X}.
+#' By default, this is the column corresponding to 
+#' the \link[stats]{median} of the tabulating grid;}
+#' \item `gam(.)$linear.predictors`, from Step 1
 #' }
 #' 
 #' }
 #' 
 #' *Functional regression indices* (slot `@@.Data`)
 #' are the product of 
-#' `sign` (from Step 3) and `gam(.)$linear.predictors`.
-#' Multiplication by `sign` is required to ensure
-#' that the resulting functional regression indices
-#' are positively associated with the functional predictor values
-#' at the selected quantile of `xgrid` (from Step 2).
+#' `sign` (from Step 2) and `gam(.)$linear.predictors` (from Step 1).
+#' Multiplication by `sign` ensures
+#' that the functional regression indices
+#' are positively correlated with the user-selected \eqn{X_{\cdot,j}}.
 #' 
 #' 
 #' @returns 
