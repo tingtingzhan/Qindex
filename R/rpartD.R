@@ -98,7 +98,6 @@
 #' with(cu.summary, rpartD(y = Price, x = Mileage, check_degeneracy = FALSE))
 #' (foo = with(cu.summary, rpartD(y = Price, x = Mileage)))
 #' foo(rnorm(10, mean = 24.5))
-#' 
 #' @keywords internal
 #' @importFrom rpart rpart
 #' @name rpartD
@@ -193,7 +192,6 @@ rpartD <- function(
 #' nrow(stagec) # 146
 #' (foo = with(stagec[1:100,], m_rpartD(y = Surv(pgtime, pgstat), X = cbind(age, g2, gleason))))
 #' foo(as.matrix(stagec[-(1:100), c('age', 'g2', 'gleason')]))
-#' 
 #' @rdname rpartD
 #' @export
 m_rpartD <- function(y, X, check_degeneracy = TRUE, ...) {
@@ -207,7 +205,7 @@ m_rpartD <- function(y, X, check_degeneracy = TRUE, ...) {
   
   calls <- lapply(sq, FUN = function(i) {
     cl <- fbodies[[i]]
-    cl[[2L]] <- call('[', quote(newX), TRUE, i)
+    cl[[2L]] <- call('[', quote(newX), alist(a =)[[1L]], i)
     call('(', cl) # easier to read for human
   })
   

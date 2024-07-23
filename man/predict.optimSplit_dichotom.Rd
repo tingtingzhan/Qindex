@@ -2,28 +2,33 @@
 % Please edit documentation in R/optimSplit_dichotom.R
 \name{predict.optimSplit_dichotom}
 \alias{predict.optimSplit_dichotom}
-\title{predict.optimSplit_dichotom}
+\title{Regression Models with Optimal Dichotomizing Predictors}
 \usage{
 \method{predict}{optimSplit_dichotom}(
   object,
   formula = attr(object, which = "formula", exact = TRUE),
   newdata = attr(object, which = "data", exact = TRUE),
+  boolean = TRUE,
   ...
 )
 }
 \arguments{
 \item{object}{an \link{optimSplit_dichotom} object}
 
-\item{formula}{\link[stats]{formula}}
+\item{formula}{(optional) \link[stats]{formula} to specify the response in test data. If missing, the model formula of training data is used}
 
-\item{newdata}{(optional) test \link[base]{data.frame}.
-If missing, the training data is used}
+\item{newdata}{(optional) test \link[base]{data.frame}, candidate \link[base]{numeric} predictors \eqn{x}'s must have the same \link[base]{name} and \link[base]{dim}ension as the training data. If missing, the training data is used}
 
-\item{...}{..}
+\item{boolean}{\link[base]{logical} scalar, whether to use the \emph{dichotomized} predictor (default, \code{TRUE}), or the continuous predictor (\code{FALSE})}
+
+\item{...}{additional paramters, currently not in use}
 }
 \value{
-Function \link{predict.optimSplit_dichotom} returns ..
+Function \link{predict.optimSplit_dichotom} returns a \link[base]{list} of regression models, \link[survival]{coxph} model for \link[survival]{Surv} response, \link[stats]{glm} for \link[base]{logical} response, and \link[stats]{lm} model for \link[base]{numeric} response.
 }
 \description{
-..
+Regression models with optimal dichotomizing predictor(s), used either as boolean or continuous predictor(s).
+}
+\examples{
+# see ?`Qindex-package`
 }

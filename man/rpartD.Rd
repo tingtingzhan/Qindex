@@ -139,13 +139,11 @@ data(cu.summary, package = 'rpart') # see more details from ?rpart::cu.summary
 with(cu.summary, rpartD(y = Price, x = Mileage, check_degeneracy = FALSE))
 (foo = with(cu.summary, rpartD(y = Price, x = Mileage)))
 foo(rnorm(10, mean = 24.5))
-
 ## Dichotomize Multiple Predictors
 library(survival)
 data(stagec, package = 'rpart') # see more details from ?rpart::stagec
 nrow(stagec) # 146
 (foo = with(stagec[1:100,], m_rpartD(y = Surv(pgtime, pgstat), X = cbind(age, g2, gleason))))
 foo(as.matrix(stagec[-(1:100), c('age', 'g2', 'gleason')]))
-
 }
 \keyword{internal}

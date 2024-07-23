@@ -18,14 +18,14 @@ dim(pbc2_test <- pbc2[setdiff(seq_len(nn), id_train), ])
 if (FALSE) {
   set.seed(seed = 13542); m0 = optimSplit_dichotom_VERYOLD(
     Surv(time, death) ~ bili + chol + albumin + copper + alk.phos + ast + trig + platelet + protime, 
-    data = pbc2_train, nsplit = 20L, include = (highX > .15 & highX < .85), top = 2L) 
+    data = pbc2_train, nsplit = 20L, top = 2L) 
   head(m0, n = 10L)
   attr(m0, 'top')
 }
 
 set.seed(seed = 13542); (m1 = optimSplit_dichotom(
   Surv(time, death) ~ bili + chol + albumin + copper + alk.phos + ast + trig + platelet + protime, 
-  data = pbc2_train, nsplit = 20L, include = (highX > .15 & highX < .85), top = 2L)) 
+  data = pbc2_train, nsplit = 20L, top = 2L)) 
 predict(m1)
 predict(m1, data = pbc2_test)
 

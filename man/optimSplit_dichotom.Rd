@@ -3,48 +3,46 @@
 \name{optimSplit_dichotom}
 \alias{optimSplit_dichotom}
 \alias{split_dichotom}
-\alias{quantile_split_dichotom}
+\alias{splits_dichotom}
+\alias{quantile.splits_dichotom}
 \title{Optimal Dichotomizing Predictors via Repeated Sample Splits}
 \usage{
-optimSplit_dichotom(formula, data, include, top = 1L, nsplit, ...)
+optimSplit_dichotom(
+  formula,
+  data,
+  include = quote(p1 > 0.15 & p1 < 0.85),
+  top = 1L,
+  nsplit,
+  ...
+)
 
 split_dichotom(y, x, train, ...)
 
-quantile_split_dichotom(y, x, trains = rSplit(y, ...), probs = 0.5, ...)
+splits_dichotom(y, x, trains = rSplit(y, ...), ...)
+
+\method{quantile}{splits_dichotom}(x, probs = 0.5, ...)
 }
 \arguments{
-\item{formula, y, x}{a two-sided \link[stats]{formula} \code{y~X} or \code{y~x1+x2}.
+\item{formula, y, x}{two-sided \link[stats]{formula} \code{y~X} or \code{y~x1+x2}.
 Types of response \eqn{y} may be \link[base]{double}, \link[base]{logical} and \link[survival]{Surv}.
-Candidate \link[base]{numeric} predictors \eqn{x}'s may
-be specified as the columns of one \link[base]{matrix} column, e.g., \code{y~X};
-or as several \link[base]{vector} columns, e.g., \code{y~x1+x2}.
+Candidate \link[base]{numeric} predictors \eqn{x}'s may be specified as the columns of one \link[base]{matrix} column, e.g., \code{y~X}; or as several \link[base]{vector} columns, e.g., \code{y~x1+x2}.
 In helper functions, \code{x} is a \link[base]{numeric} \link[base]{vector}.}
 
 \item{data}{\link[base]{data.frame}}
 
-\item{include}{(optional) \link[base]{language},
-inclusion criteria for the optimal dichotomizing predictors.
-A suggested choice is \code{(highX>.15 & highX<.85)}
-to guarantee a user-desired range of proportions in \code{highX}.
-See explanation of \code{highX} in helper function \link{split_dichotom}.}
+\item{include}{(optional) \link[base]{language}, inclusion criteria for the optimal dichotomizing predictors.
+Default \code{(p1>.15 & p1<.85)} specifies a user-desired range of \eqn{p_1}.
+See explanation of \eqn{p_1} in section \strong{Returns of Helper Functions}.}
 
 \item{top}{positive \link[base]{integer} scalar, number of optimal dichotomizing predictors, default \code{1L}}
 
 \item{nsplit, ...}{additional parameters for function \link{rSplit}}
 
-\item{train}{\link[base]{logical} \link[base]{vector}
-for helper function \link{split_dichotom},
-indices of training (\code{TRUE}) and test (\code{FALSE}) subjects}
+\item{train}{\link[base]{logical} \link[base]{vector} for helper function \link{split_dichotom}, indices of training (\code{TRUE}) and test (\code{FALSE}) subjects}
 
-\item{trains}{(optional)
-a \link[base]{list} of \link[base]{logical} \link[base]{vector}s
-for helper function \link{quantile_split_dichotom},
-the indices of multiple training-test sample splits.
-Default value is provided by function \link{rSplit}.}
+\item{trains}{(optional) \link[base]{list} of \link[base]{logical} \link[base]{vector}s for helper function \link{splits_dichotom}, indices of multiple training-test sample splits.}
 
-\item{probs}{\link[base]{double} scalar
-for helper function \link{quantile_split_dichotom},
-see \link[stats]{quantile}}
+\item{probs}{\link[base]{double} scalar for helper function \link{quantile.splits_dichotom}, see \link[stats]{quantile}}
 }
 \value{
 Function \link{optimSplit_dichotom} returns an object of \link[base]{class} \code{'optimSplit_dichotom'},
@@ -62,20 +60,9 @@ input \link[base]{data.frame}}
 Functions explained in this documentation are,
 
 \describe{
-
-\item{\link{optimSplit_dichotom}}{
-to identify the optimal dichotomizing predictors using repeated sample splits.}
-
-\item{\link{split_dichotom}}{
-a helper function to perform a univariable regression model on the test set
-with a dichotomized predictor,
-using a dichotomizing rule determined
-by a recursive partitioning of the training set.}
-
-\item{\link{quantile_split_dichotom}}{
-a helper function to locate a quantile of multiple \link{split_dichotom} objects,
-based on the estimated univariable regression coefficient.}
-
+\item{\link{optimSplit_dichotom}}{to identify the optimal dichotomizing predictors using repeated sample splits.}
+\item{\link{split_dichotom}}{helper function to perform a univariable regression model on the test set with a dichotomized predictor, using a dichotomizing rule determined by a recursive partitioning of the training set.}
+\item{\link{quantile.splits_dichotom}}{helper function to locate a quantile of multiple \link{split_dichotom} objects, based on the estimated univariable regression coefficient.}
 }
 }
 \details{
@@ -84,22 +71,18 @@ in the following steps,
 
 \enumerate{
 
-\item Generate multiple training-test sample splits using function \link{rSplit}
+\item Generate multiple training-test sample splits, see \link{rSplit}
 
-\item For each candidate predictor,
+\item For each candidate predictor \eqn{x_i},
 find the median \link{split_dichotom}
-(using helper function \link{quantile_split_dichotom})
+(using helper function \link{quantile.splits_dichotom})
 of the multiple sample splits from Step 1.
 
-\item (Optional) limit the selection in a subset of the candidate predictors.
-Typically, we would prefer to guarantee
-a user-desired range of \code{highX}
-(see explanations on \code{highX} in section \strong{Returns of Helper Functions}).
-A suggested choice is \code{(highX>.15 & highX<.85)}.
+\item (Optional) limit the selection in a subset of the candidate predictors to guarantee a user-desired range of \eqn{p_1} (see explanations in section \strong{Returns of Helper Functions});
 
 \item Rank the candidate predictors, from either Step 2 or Step 3,
 by the decreasing order of the \link[base]{abs}olute values of
-the estimated univariable regression coefficients of the corresponding \link{split_dichotom} objects.
+the univariable regression coefficient estimate of the corresponding \link{split_dichotom} objects.
 
 }
 
@@ -110,73 +93,54 @@ of the corresponding \link{split_dichotom} objects.
 }
 \section{Details on Helper Functions}{
 
-\subsection{Univariable regression model with a dichotomized predictor}{
+\subsection{Univariable regression model with a split-dichotomized predictor}{
 
-Helper function \link{split_dichotom} performs a univariable regression model on the test set
-with a dichotomized predictor,
-using a dichotomizing rule determined
-by a recursive partitioning of the training set.
-Currently the Cox proportional hazards (\link[survival]{coxph}) regression for \link[survival]{Surv} response,
-logistic (\link[stats]{glm}) regression for \link[base]{logical} response and
-linear (\link[stats]{lm}) regression for \link[stats]{gaussian} response
-are supported.
+Helper function \link{split_dichotom} performs a univariable regression model on the test set with a dichotomized predictor, using a dichotomizing rule determined by a recursive partitioning of the training set.
 Specifically, given a training-test sample split,
-
 \enumerate{
-\item find the dichotomizing rule of the response \eqn{y}
-given the predictor \eqn{x}, using function \link{rpartD}, in the training set
-\item dichotomize the predictor \eqn{x} using the rule identified in Step 1,
-in the test set.
-\item run a univariable regression model on the response \eqn{y}
-on the dichotomized predictor from Step 2, in the test set.
+\item find the \emph{dichotomizing rule} \eqn{\mathcal{D}} of the predictor \eqn{x_0} given the response \eqn{y_0} in the training set, see \link{rpartD};
+\item fit a univariable regression model of the response \eqn{y_1} with the dichotomized predictor \eqn{\mathcal{D}(x_1)} in the test set.
 }
+Currently the Cox proportional hazards (\link[survival]{coxph}) regression for \link[survival]{Surv} response, logistic (\link[stats]{glm}) regression for \link[base]{logical} response and linear (\link[stats]{lm}) regression for \link[stats]{gaussian} response are supported.
 }
 
 
-\subsection{Quantile of \link{split_dichotom} objects}{
+\subsection{List of \link{split_dichotom}s, based on multiple training-test sample splits}{
 
-Helper function \link{quantile_split_dichotom} finds the \link[stats]{quantile}
-of the univariable regression coefficient (i.e., effect size) of a dichotomized predictor,
-based on multiple given training-test sample splits.
+Helper function \link{splits_dichotom} executes function \link{split_dichotom} on the response \eqn{y} and predictor \eqn{x}, based on multiple training-test sample splits.
+}
+
+
+\subsection{Quantile of \link{splits_dichotom}}{
+
+Helper function \link{quantile.splits_dichotom} is a method dispatch of the S3 generic function \link[stats]{quantile} on \link{splits_dichotom} object.
 Specifically,
 
 \enumerate{
-\item {for each training-test sample split,
-fit the univariable regression model based on the dichotomized predictor,
-using helper function \link{split_dichotom}}
-\item {finds the nearest-even (\code{type = 3}) \link[stats]{quantile}
-of the estimated univariable regression coefficients obtained in Step 1,
-based on the user-specified probability \code{prob}}
+\item {collect the univariable regression coefficient estimate from each \link{split_dichotom} element in the input \link{splits_dichotom} object;}
+\item {find the nearest-even (i.e., \code{type = 3}) \link[stats]{quantile} of the coefficients from Step 1. By default, we use the \link[stats]{median} (i.e., \code{prob = .5});}
+\item {the \link{split_dichotom} element corresponding to the selected coefficient quantile in Step 2, is returned.}
 }
-
-The \link{split_dichotom} object from Step 1,
-whose estimated univariable regression coefficient equals to
-the specified quantile identified in Step 2,
-is referred to as the quantile of \link{split_dichotom} objects
-based on the multiple given training-test sample splits.
 }
 }
 
 \section{Returns of Helper Functions}{
 
 
-Helper function \link{split_dichotom}, as well as helper function \link{quantile_split_dichotom}, returns
-a Cox proportional hazards (\link[survival]{coxph}),
-or a logistic (\link[stats]{glm}),
-or a linear (\link[stats]{lm})
-regression model,
-with additional \link[base]{attributes}
+Helper functions \link{split_dichotom} returns a \link{split_dichotom} object, which is either a Cox proportional hazards (\link[survival]{coxph}), a logistic (\link[stats]{glm}), or a linear (\link[stats]{lm}) regression model, with additional \link[base]{attributes}
 
 \describe{
-\item{\code{attr(,'rule')}}{\link[base]{function},
-the dichotomizing rule based on the training set}
-\item{\code{attr(,'cutoff')}}{\link[base]{numeric} scalar,
-the cutoff threshold based on the training set}
-\item{\code{attr(,'highX')}}{\link[base]{double} scalar,
-proportion of \link[base]{numeric} predictor \eqn{x}, in the test set, which is greater-than or greater-than-or-equal-to
-the cutoff threshold \code{attr(, 'cutoff')}}
-\item{\code{attr(,'coef')}}{\link[base]{double} scalar,
-the estimated univariable regression coefficient of the dichotomized predictor in the test set}
+\item{\code{attr(,'rule')}}{\link[base]{function}, dichotomizing rule \eqn{\mathcal{D}} based on the training set}
+\item{\code{attr(,'text')}}{\link[base]{character} scalar, human-friendly description of \eqn{\mathcal{D}}}
+\item{\code{attr(,'p1')}}{\link[base]{double} scalar, \eqn{p_1 = \text{Pr}(\mathcal{D}(x_1)=1)}}
+\item{\code{attr(,'coef')}}{\link[base]{double} scalar, univariable regression coefficient estimate of \eqn{y_1\sim\mathcal{D}(x_1)}}
 }
+
+
+
+Helper functions \link{splits_dichotom} returns a \link[base]{list} of \link{split_dichotom} objects.
+
+
+Helper function \link{quantile.splits_dichotom} returns a \link{split_dichotom} object.
 }
 
