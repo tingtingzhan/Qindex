@@ -11,7 +11,7 @@ setOldClass('gam.prefit')
 #' @slot .Data \link[base]{double} \link[base]{vector},
 #' functional regression indices, see section **Details**.
 #' 
-#' @slot formula see explanations in section **Arguments**
+#' @slot formula see section **Arguments**
 #'   
 # @slot xgrid strictly increasing \link[base]{double} \link[base]{vector}.
 # In package \pkg{Qindex},
@@ -48,7 +48,7 @@ setClass(Class = 'FRidx', contains = 'numeric', slots = c(
 
 #' @rdname FRidx
 #' 
-#' @param formula a two-sided \link[stats]{formula} `y ~ X`. 
+#' @param formula a two-sided \link[stats]{formula} `y~X`. 
 #' Types of response \eqn{y} may be \link[base]{double}, \link[base]{logical} and \link[survival]{Surv}.
 #' Functional predictor \eqn{X} is a tabulated \link[base]{double} \link[base]{matrix};
 #' the rows of \eqn{X} correspond to the subjects, 
@@ -103,21 +103,21 @@ setClass(Class = 'FRidx', contains = 'numeric', slots = c(
 #' \enumerate{
 #' 
 #' \item Fit a functional regression model (via function \link[mgcv]{gam}) 
-#' to the response \eqn{y} 
-#' using the functional predictor \eqn{X};
+#' of response \eqn{y} 
+#' with functional predictor \eqn{X};
 #' 
 #' \item Obtain the \link[base]{sign} of the \link[stats]{cor}relation between 
 #' \itemize{
 #' \item {\eqn{X_{\cdot,j}}, 
 #' the user-selected \eqn{j}-th column of functional predictor \eqn{X}.
 #' By default, this is the column corresponding to 
-#' the \link[stats]{median} of the tabulating grid;}
+#' the \link[stats]{median} of the grid;}
 #' \item `gam(.)$linear.predictors`, from Step 1
 #' }
 #' 
 #' }
 #' 
-#' *Functional regression indices* (slot `@@.Data`)
+#' *Functional regression indices* (slot `@@.Data` of returned object)
 #' are the product of 
 #' `sign` (from Step 2) and `gam(.)$linear.predictors` (from Step 1).
 #' Multiplication by `sign` ensures
@@ -126,9 +126,9 @@ setClass(Class = 'FRidx', contains = 'numeric', slots = c(
 #' 
 #' 
 #' @returns 
-#' 
-#' Function [FRidx] returns an \link[base]{S4} class \linkS4class{FRidx} object,
-#' the slots of which are described in section **Slots**.
+#' Function [FRidx] returns an \linkS4class{FRidx} object, 
+#' which is an instance of an \link[base]{S4} class.
+#' See section **Slots** for details.
 #' 
 #' 
 #' @references 

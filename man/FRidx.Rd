@@ -20,7 +20,7 @@ FRidx_prefit_(
 )
 }
 \arguments{
-\item{formula}{a two-sided \link[stats]{formula} \code{y ~ X}.
+\item{formula}{a two-sided \link[stats]{formula} \code{y~X}.
 Types of response \eqn{y} may be \link[base]{double}, \link[base]{logical} and \link[survival]{Surv}.
 Functional predictor \eqn{X} is a tabulated \link[base]{double} \link[base]{matrix};
 the rows of \eqn{X} correspond to the subjects,
@@ -65,8 +65,9 @@ Default is the \link[base]{ceiling} of \code{knot_pct} of
 the column dimension of \eqn{X}}
 }
 \value{
-Function \link{FRidx} returns an \link[base]{S4} class \linkS4class{FRidx} object,
-the slots of which are described in section \strong{Slots}.
+Function \link{FRidx} returns an \linkS4class{FRidx} object,
+which is an instance of an \link[base]{S4} class.
+See section \strong{Slots} for details.
 }
 \description{
 Functional regression indices
@@ -79,21 +80,21 @@ the functional regression indices in the following steps.
 \enumerate{
 
 \item Fit a functional regression model (via function \link[mgcv]{gam})
-to the response \eqn{y}
-using the functional predictor \eqn{X};
+of response \eqn{y}
+with functional predictor \eqn{X};
 
 \item Obtain the \link[base]{sign} of the \link[stats]{cor}relation between
 \itemize{
 \item {\eqn{X_{\cdot,j}},
 the user-selected \eqn{j}-th column of functional predictor \eqn{X}.
 By default, this is the column corresponding to
-the \link[stats]{median} of the tabulating grid;}
+the \link[stats]{median} of the grid;}
 \item \code{gam(.)$linear.predictors}, from Step 1
 }
 
 }
 
-\emph{Functional regression indices} (slot \verb{@.Data})
+\emph{Functional regression indices} (slot \verb{@.Data} of returned object)
 are the product of
 \code{sign} (from Step 2) and \code{gam(.)$linear.predictors} (from Step 1).
 Multiplication by \code{sign} ensures
@@ -106,7 +107,7 @@ are positively correlated with the user-selected \eqn{X_{\cdot,j}}.
 \item{\code{.Data}}{\link[base]{double} \link[base]{vector},
 functional regression indices, see section \strong{Details}.}
 
-\item{\code{formula}}{see explanations in section \strong{Arguments}}
+\item{\code{formula}}{see section \strong{Arguments}}
 
 \item{\code{gam}}{a \link[mgcv]{gam} object}
 

@@ -26,18 +26,16 @@
 #' 
 #' 
 #' 
-#' @param formula \link[stats]{formula}. 
-#' Left-hand-side is the \link[base]{name} of 
-#' a \link[survival]{Surv}, \link[base]{logical}, or \link[base]{double} response \eqn{y}.
-#' Right-hand-side is the candidate \link[base]{numeric} predictors in `data`, 
-#' given either as the \link[base]{name} of a \link[base]{numeric} \link[base]{matrix} column
-#' (e.g., `y ~ X`), 
-#' or as the names of several \link[base]{numeric} \link[base]{vector} columns
-#' (e.g., `y ~ x1 + x2 + x3`)
+#' @param formula,y,x a two-sided \link[stats]{formula} `y~X` or `y~x1+x2`.
+#' Types of response \eqn{y} may be \link[base]{double}, \link[base]{logical} and \link[survival]{Surv}.
+#' Candidate \link[base]{numeric} predictors \eqn{x}'s may
+#' be specified as the columns of one \link[base]{matrix} column, e.g., `y~X`;
+#' or as several \link[base]{vector} columns, e.g., `y~x1+x2`.
+#' In helper functions, `x` is a \link[base]{numeric} \link[base]{vector}.
 #' 
-#' @param data \link[base]{data.frame}, containing the response and predictors in `formula`
+#' @param data \link[base]{data.frame}
 #' 
-#' @param include \link[base]{language} object, 
+#' @param include (optional) \link[base]{language}, 
 #' inclusion criteria for the optimal dichotomizing predictors. 
 #' A suggested choice is `(highX>.15 & highX<.85)`
 #' to guarantee a user-desired range of proportions in `highX`.
@@ -47,32 +45,25 @@
 #' 
 #' @param nsplit,... additional parameters for function [rSplit]
 #' 
-#' @param y (for helper functions) 
-#' a \link[survival]{Surv} object, a \link[base]{logical} \link[base]{vector}, 
-#' or a \link[base]{double} \link[base]{vector}, the response \eqn{y}
+#' @param train \link[base]{logical} \link[base]{vector}
+#' for helper function [split_dichotom],
+#' indices of training (`TRUE`) and test (`FALSE`) subjects 
 #' 
-#' @param x (for helper functions) 
-#' \link[base]{numeric} \link[base]{vector}, a single predictor \eqn{x}
-#' 
-#' @param index (for helper function [split_dichotom]) 
-#' \link[base]{logical} \link[base]{vector},
-#' indices of training and test set. 
-#' `TRUE` elements indicate training subjects and 
-#' `FALSE` elements indicate test subjects.
-#' 
-#' @param indices (optional, for helper function [quantile_split_dichotom]) 
-#' a \link[base]{list} of \link[base]{logical} \link[base]{vector}s,
+#' @param trains (optional) 
+#' a \link[base]{list} of \link[base]{logical} \link[base]{vector}s
+#' for helper function [quantile_split_dichotom],
 #' the indices of multiple training-test sample splits.  
 #' Default value is provided by function [rSplit].
 #' 
-#' @param probs (for helper function [quantile_split_dichotom]) 
-#' \link[base]{double} scalar, see \link[stats]{quantile}
+#' @param probs \link[base]{double} scalar
+#' for helper function [quantile_split_dichotom], 
+#' see \link[stats]{quantile}
 #' 
 #' 
 #' @details 
 #' 
-#' Function [optimSplit_dichotom] selects the optimal dichotomizing predictors via repeated sample splits.
-#' Specifically,
+#' Function [optimSplit_dichotom] selects the optimal dichotomizing predictors via repeated sample splits 
+#' in the following steps,
 #' 
 #' \enumerate{
 #' 
@@ -150,7 +141,7 @@ optimSplit_dichotom <- function(
   
   cl <- match.call()
   y <- eval(formula[[2L]], envir = data)
-  indices <- rSplit(y, nsplit = nsplit, ...) # using same split for all predictors
+  trains <- rSplit(y, nsplit = nsplit, ...) # using same split for all predictors
   
   if (is.symbol(formula[[3L]])) {
     X <- eval(formula[[3L]], envir = data) # 'matrix' of predictors
@@ -164,7 +155,7 @@ optimSplit_dichotom <- function(
   #if (anyNA(X)) # it's okay now!
   
   tmp <- lapply(seq_len(dim(X)[2L]), FUN = function(p) {
-    quantile_split_dichotom(y = y, x = X[,p], indices = indices, probs = .5)
+    quantile_split_dichotom(y = y, x = X[,p], trains = trains, probs = .5)
   })
   mssd <- do.call(what = Map, args = c(list(f = c), lapply(tmp, FUN = function(i) attributes(i)[c('rule', 'cutoff', 'text', 'highX', 'coef')])))
   
@@ -217,10 +208,13 @@ optimSplit_dichotom <- function(
 #' 
 #' @param object an [optimSplit_dichotom] object
 #' 
-#' @param formula \link[stats]{formula}
+#' @param formula (optional) \link[stats]{formula}
 #' 
 #' @param newdata (optional) test \link[base]{data.frame}.
 #' If missing, the training data is used
+#' 
+#' @param boolean \link[base]{logical} scalar, whether to use the 
+#' dichotomized predictor (default, `TRUE`) or the continous predictor
 #' 
 #' @param ... ..
 #' 
@@ -232,7 +226,8 @@ optimSplit_dichotom <- function(
 predict.optimSplit_dichotom <- function(
     object, 
     formula = attr(object, which = 'formula', exact = TRUE),
-    newdata = attr(object, which = 'data', exact = TRUE), 
+    newdata = attr(object, which = 'data', exact = TRUE),
+    boolean = TRUE,
     ...
 ) {
   
@@ -249,14 +244,20 @@ predict.optimSplit_dichotom <- function(
     
     nm0 <- as.list.function(rule)[[1L]]
     
-    bool_ <- with(newdata, do.call(rule, args = list(nm0)))
-    # why do I have to do this?? why neither of following does not work?
-    #eval(rule(), envir = newdata)
-    #with(newdata, rule())
+    if (boolean) {
+      bool_ <- with(newdata, do.call(rule, args = list(nm0)))
+      # why do I have to do this?? why neither of following does not work?
+      #eval(rule(), envir = newdata)
+      #with(newdata, rule())
+      nm_ <- paste0(deparse1(nm0), attr(bool_, which = 'text'))
+      assign(x = nm_, value = bool_)
+    } else { # using continuous (i.e., not dichotomized) predictor
+      nm_ <- deparse1(nm0)
+      assign(x = nm_, value = eval(nm0, envir = newdata))
+    }
     
-    nm_ <- paste0(deparse1(nm0), attr(bool_, which = 'text'))
-    assign(x = nm_, value = bool_)
     fom_ <- eval(call('~', quote(y), as.symbol(nm_)))
+    
     if (inherits(y, what = 'Surv')) {
       suppressWarnings(do.call('coxph', args = list(formula = fom_)))
     } else if (is.logical(y) || all(y %in% c(0, 1))) {
@@ -337,12 +338,12 @@ predict.optimSplit_dichotom <- function(
 #' @importFrom stats lm glm binomial
 #' @rdname optimSplit_dichotom
 #' @export
-split_dichotom <- function(y, x, index, ...) {
+split_dichotom <- function(y, x, train, ...) {
   
-  # index: training set
-  # !index: test set
-  branch <- rpartD(y = y[index], x = x[index], check_degeneracy = TRUE)
-  dtest <- tryCatch(data.frame(y = y[!index], high = branch(x[!index])), warning = identity)
+  # train: training set
+  # !train: test set
+  branch <- rpartD(y = y[train], x = x[train], check_degeneracy = TRUE)
+  dtest <- tryCatch(data.frame(y = y[!train], high = branch(x[!train])), warning = identity)
   
   if (inherits(dtest, what = 'warning')) {
     # exception
@@ -408,9 +409,9 @@ split_dichotom <- function(y, x, index, ...) {
 #' @importFrom stats quantile
 #' @rdname optimSplit_dichotom
 #' @export
-quantile_split_dichotom <- function(y, x, indices = rSplit(y, ...), probs = .5, ...) {
+quantile_split_dichotom <- function(y, x, trains = rSplit(y, ...), probs = .5, ...) {
   
-  tmp <- lapply(indices, FUN = function(index) split_dichotom(y, x, index = index, ...))
+  tmp <- lapply(trains, FUN = function(train) split_dichotom(y, x, train = train, ...))
   
   cf <- vapply(tmp, FUN = attr, which = 'coef', exact = TRUE, FUN.VALUE = NA_real_)
   

@@ -8,23 +8,21 @@
 \usage{
 optimSplit_dichotom(formula, data, include, top = 1L, nsplit, ...)
 
-split_dichotom(y, x, index, ...)
+split_dichotom(y, x, train, ...)
 
-quantile_split_dichotom(y, x, indices = rSplit(y, ...), probs = 0.5, ...)
+quantile_split_dichotom(y, x, trains = rSplit(y, ...), probs = 0.5, ...)
 }
 \arguments{
-\item{formula}{\link[stats]{formula}.
-Left-hand-side is the \link[base]{name} of
-a \link[survival]{Surv}, \link[base]{logical}, or \link[base]{double} response \eqn{y}.
-Right-hand-side is the candidate \link[base]{numeric} predictors in \code{data},
-given either as the \link[base]{name} of a \link[base]{numeric} \link[base]{matrix} column
-(e.g., \code{y ~ X}),
-or as the names of several \link[base]{numeric} \link[base]{vector} columns
-(e.g., \code{y ~ x1 + x2 + x3})}
+\item{formula, y, x}{a two-sided \link[stats]{formula} \code{y~X} or \code{y~x1+x2}.
+Types of response \eqn{y} may be \link[base]{double}, \link[base]{logical} and \link[survival]{Surv}.
+Candidate \link[base]{numeric} predictors \eqn{x}'s may
+be specified as the columns of one \link[base]{matrix} column, e.g., \code{y~X};
+or as several \link[base]{vector} columns, e.g., \code{y~x1+x2}.
+In helper functions, \code{x} is a \link[base]{numeric} \link[base]{vector}.}
 
-\item{data}{\link[base]{data.frame}, containing the response and predictors in \code{formula}}
+\item{data}{\link[base]{data.frame}}
 
-\item{include}{\link[base]{language} object,
+\item{include}{(optional) \link[base]{language},
 inclusion criteria for the optimal dichotomizing predictors.
 A suggested choice is \code{(highX>.15 & highX<.85)}
 to guarantee a user-desired range of proportions in \code{highX}.
@@ -34,26 +32,19 @@ See explanation of \code{highX} in helper function \link{split_dichotom}.}
 
 \item{nsplit, ...}{additional parameters for function \link{rSplit}}
 
-\item{y}{(for helper functions)
-a \link[survival]{Surv} object, a \link[base]{logical} \link[base]{vector},
-or a \link[base]{double} \link[base]{vector}, the response \eqn{y}}
+\item{train}{\link[base]{logical} \link[base]{vector}
+for helper function \link{split_dichotom},
+indices of training (\code{TRUE}) and test (\code{FALSE}) subjects}
 
-\item{x}{(for helper functions)
-\link[base]{numeric} \link[base]{vector}, a single predictor \eqn{x}}
-
-\item{index}{(for helper function \link{split_dichotom})
-\link[base]{logical} \link[base]{vector},
-indices of training and test set.
-\code{TRUE} elements indicate training subjects and
-\code{FALSE} elements indicate test subjects.}
-
-\item{indices}{(optional, for helper function \link{quantile_split_dichotom})
-a \link[base]{list} of \link[base]{logical} \link[base]{vector}s,
+\item{trains}{(optional)
+a \link[base]{list} of \link[base]{logical} \link[base]{vector}s
+for helper function \link{quantile_split_dichotom},
 the indices of multiple training-test sample splits.
 Default value is provided by function \link{rSplit}.}
 
-\item{probs}{(for helper function \link{quantile_split_dichotom})
-\link[base]{double} scalar, see \link[stats]{quantile}}
+\item{probs}{\link[base]{double} scalar
+for helper function \link{quantile_split_dichotom},
+see \link[stats]{quantile}}
 }
 \value{
 Function \link{optimSplit_dichotom} returns an object of \link[base]{class} \code{'optimSplit_dichotom'},
@@ -88,8 +79,8 @@ based on the estimated univariable regression coefficient.}
 }
 }
 \details{
-Function \link{optimSplit_dichotom} selects the optimal dichotomizing predictors via repeated sample splits.
-Specifically,
+Function \link{optimSplit_dichotom} selects the optimal dichotomizing predictors via repeated sample splits
+in the following steps,
 
 \enumerate{
 
