@@ -6,33 +6,27 @@
 \alias{coef_dichotom}
 \title{Bootstrap-based Optimism Correction for Dichotomization}
 \usage{
-BBC_dichotom(formula, dichotom, data, ...)
+BBC_dichotom(formula, data, ...)
 
-optimism_dichotom(formula, X, data, R = 100L, ...)
+optimism_dichotom(fom, X, data, R = 100L, ...)
 
-coef_dichotom(formula, dX, data)
+coef_dichotom(fom, dX, data)
 }
 \arguments{
-\item{formula}{\link[stats]{formula},
-left-hand-side being the response \eqn{y} and
-right-hand-side being the predictors \emph{in addition to}
-the predictors to be \code{dichotom}ized.
-If there is no additional predictor, use \code{y ~ 1}}
+\item{formula}{\link[stats]{formula} of format \code{y~z~x} or \code{y~1~x}.
+Types of response \eqn{y} may be \link[base]{double}, \link[base]{logical} and \link[survival]{Surv}.
+Predictors \eqn{x}'s to be dichotomized may be one or more \link[base]{numeric} \link[base]{vector}s and/or one \link[base]{matrix}.
+Additional predictors \eqn{z}'s, if any, may be of any type.}
 
-\item{dichotom}{one-sided \link[stats]{formula}
-of the set of predictors to be dichotomized.
-These predictors can be stored in \code{data} as
-one or more \link[base]{numeric} columns and/or
-one \link[base]{matrix} column}
-
-\item{data}{\link[base]{data.frame}, containing the response \eqn{y} and predictors in \code{formula},
-as well as the predictors to be \code{dichotom}ized}
+\item{data}{\link[base]{data.frame}}
 
 \item{...}{additional parameters, currently not in use}
 
+\item{fom}{\link[stats]{formula} of format \code{y~z} or \code{y~1}, for helper functions}
+
 \item{X}{(for helper function \link{optimism_dichotom})
 \link[base]{numeric} \link[base]{matrix} of \eqn{k} columns,
-a set of \eqn{k} \link[base]{numeric} predictors}
+\link[base]{numeric} predictors \eqn{x_1,\cdots,x_k} to be dichotomized}
 
 \item{R}{positive \link[base]{integer} scalar,
 number of bootstrap replicates \eqn{R}, default \code{100L}}
@@ -53,23 +47,6 @@ cutoff thresholds for the \eqn{k} predictors in the apparent model}
 }
 \description{
 Functions explained in this documentation are,
-
-\describe{
-
-\item{\link{BBC_dichotom}}{
-to obtain a multivariable regression model with
-bootstrap-based optimism correction
-on the dichotomized predictors.}
-
-\item{\link{optimism_dichotom}}{
-a helper function to compute the bootstrap-based optimism
-of the dichotomized predictors.}
-
-\item{\link{coef_dichotom}}{
-a helper function to obtain the
-estimated multivariable regression coefficients of the dichotomized predictors.}
-
-}
 }
 \details{
 Function \link{BBC_dichotom} obtains a multivariable regression model with
@@ -109,8 +86,9 @@ are modified neither, for now.
 The coefficient-only, partially-modified regression model is referred to as
 the \emph{optimism-corrected performance}.
 }
-\section{Details of Helper Function \link{optimism_dichotom}}{
+\section{Details on Helper Functions}{
 
+\subsection{\link{optimism_dichotom}}{
 
 Function \link{optimism_dichotom} computes the bootstrap-based optimism
 of the dichotomized predictors.
@@ -143,24 +121,22 @@ based on each of the \eqn{R} bootstrap samples,
 are referred to as the bootstrap-based \emph{optimism} or optimistic bias.
 }
 
-\section{Details of Helper Function \link{coef_dichotom}}{
 
+\subsection{\link{coef_dichotom}}{
 
-Function \link{coef_dichotom} obtains the
+Helper function \link{coef_dichotom} obtains the
 estimated multivariable regression coefficients of the dichotomized predictors.
 A Cox proportional hazards (\link[survival]{coxph}) regression for \link[survival]{Surv} response,
 a logistic (\link[stats]{glm}) regression for \link[base]{logical} response,
 or a linear (\link[stats]{lm}) regression for \link[stats]{gaussian} response
 is performed with
 \itemize{
-\item the dichotomous \link[base]{logical} predictors, given as the columns of \code{dX}, and
+\item the dichotomous \link[base]{logical} predictors, given as the (\link[base]{unique}) columns of \code{dX}, and
 \item the additional predictors specified in \code{formula}
 }
 
-When \code{dX} has duplicated columns,
-the regression model is fitted using the \link[base]{unique} columns of \code{dX} and the
-additional predictors in \code{formula}.
 The returned coefficient estimates repeat the corresponding estimates of the unique columns of \code{dX}.
+}
 }
 
 \section{Returns of Helper Functions}{
@@ -175,23 +151,13 @@ the \eqn{R} copies of bootstrap cutoff thresholds for the \eqn{k} predictors.
 See attribute \code{'cutoff'} of function \link{m_rpartD}}
 }
 
+
+
 Helper function \link{coef_dichotom} returns a \link[base]{double} \link[base]{vector} of the
 coefficients of the dichotomized predictors, with \link[base]{attributes}
 \describe{
 \item{\code{attr(,'model')}}{the \link[survival]{coxph}, \link[stats]{glm} or \link[stats]{lm} regression model}
 }
-}
-
-\section{References on Helper Function \link{optimism_dichotom}}{
-
-
-Ewout W. Steyerberg (2009) Clinical Prediction Models.
-\doi{10.1007/978-0-387-77244-8}
-
-Frank E. Harrell Jr., Kerry L. Lee, Daniel B. Mark. (1996)
-Multivariable prognostic models: issues in developing models, evaluating
-assumptions and adequacy, and measuring and reducing errors.
-\doi{10.1002/(SICI)1097-0258(19960229)15:4<361::AID-SIM168>3.0.CO;2-4}
 }
 
 \examples{
@@ -203,10 +169,21 @@ head(flchain2 <- within.data.frame(flchain, expr = {
 dim(flchain3 <- subset(flchain2, futime > 0)) # required by ?rpart::rpart
 dim(flchain_Circulatory <- subset(flchain3, chapter == 'Circulatory'))
 
-m1 = BBC_dichotom(Surv(futime, death) ~ age + sex + mgus, 
- data = flchain_Circulatory, dichotom = ~ kappa + lambda)
+m1 = BBC_dichotom(Surv(futime, death) ~ age + sex + mgus ~ kappa + lambda, data = flchain_Circulatory)
 summary(m1)
 attr(attr(m1, 'optimism'), 'cutoff')
 attr(m1, 'apparent_cutoff')
 
+}
+\references{
+\subsection{For helper function \link{optimism_dichotom}}{
+
+Ewout W. Steyerberg (2009) Clinical Prediction Models.
+\doi{10.1007/978-0-387-77244-8}
+
+Frank E. Harrell Jr., Kerry L. Lee, Daniel B. Mark. (1996)
+Multivariable prognostic models: issues in developing models, evaluating
+assumptions and adequacy, and measuring and reducing errors.
+\doi{10.1002/(SICI)1097-0258(19960229)15:4<361::AID-SIM168>3.0.CO;2-4}
+}
 }

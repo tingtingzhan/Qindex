@@ -2,9 +2,9 @@
 % Please edit documentation in R/rSplit.R
 \name{rSplit}
 \alias{rSplit}
-\title{Random Split Sampling with Stratification}
+\title{Stratified Random Split Sampling}
 \usage{
-rSplit(y, nsplit, stratified = TRUE, trainFrac = 0.8, ...)
+rSplit(y, nsplit, stratify = TRUE, s_ratio = 0.8, ...)
 }
 \arguments{
 \item{y}{a \link[base]{double} \link[base]{vector},
@@ -13,14 +13,13 @@ a \link[base]{factor},
 or a \link[survival]{Surv} object,
 response \eqn{y}}
 
-\item{nsplit}{positive \link[base]{integer} scalar,
-\link[base]{replicate}s of random splits to be performed}
+\item{nsplit}{positive \link[base]{integer} scalar, number of \link[base]{replicate}s of random splits to be performed}
 
-\item{stratified}{\link[base]{logical} scalar,
+\item{stratify}{\link[base]{logical} scalar,
 whether stratification based on response \eqn{y} needs to be implemented, default \code{TRUE}}
 
-\item{trainFrac}{\link[base]{double} scalar between 0 and 1,
-fraction of the training set, default \code{.8}}
+\item{s_ratio}{\link[base]{double} scalar between 0 and 1,
+split ratio, i.e., percentage of training subjects \eqn{p}, default \code{.8}}
 
 \item{...}{additional parameters, currently not in use}
 }
@@ -40,26 +39,26 @@ with or without stratification. Specifically,
 
 \itemize{
 
-\item If \code{stratified = FALSE},
+\item If \code{stratify = FALSE},
 or if we have a \link[base]{double} response \eqn{y},
-then split the sample into a training and a test set by ratio \code{trainFrac}, without stratification.
+then split the sample into a training and a test set by odds \eqn{p/(1-p)}, without stratification.
 
 \item Otherwise, split a \link[survival]{Surv} response \eqn{y}, stratified by its censoring status.
 Specifically,
-split subjects with observed event into a training and a test set with training set fraction \code{trainFrac},
-and split the censored subjects into a training and a test set with training set fraction \code{trainFrac}.
+split subjects with observed event into a training and a test set by odds \eqn{p/(1-p)},
+and split the censored subjects into a training and a test set by odds \eqn{p/(1-p)}.
 Then combine the training sets from subjects with observed events and censored subjects,
 and combine the test sets from subjects with observed events and censored subjects.
 
 \item Otherwise, split a \link[base]{logical} response \eqn{y}, stratified by itself.
 Specifically,
-split the subjects with \code{TRUE} response into a training and a test set with training set fraction \code{trainFrac},
-and split the subjects with \code{FALSE} response into a training and a test set with training set fraction \code{trainFrac}.
+split the subjects with \code{TRUE} response into a training and a test set by odds \eqn{p/(1-p)},
+and split the subjects with \code{FALSE} response into a training and a test set by odds \eqn{p/(1-p)}.
 Then combine the training sets, and the test sets, in a similar fashion as described above.
 
 \item Otherwise, split a \link[base]{factor} response \eqn{y}, stratified by its \link[base]{levels}.
 Specifically,
-split the subjects in each level of \eqn{y} into a training and a test set by ratio \code{trainFrac}.
+split the subjects in each level of \eqn{y} into a training and a test set by odds \eqn{p/(1-p)}.
 Then combine the training sets, and the test sets, from all levels of \eqn{y}.
 
 }

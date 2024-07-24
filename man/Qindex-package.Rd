@@ -84,15 +84,8 @@ nlfr_1 = predict(nlfr, newdata = Ki67q_1)
 integrandSurface(nlfr, newdata = Ki67q_1)
 
 ### Step 2c: Optimal Dichotomizing
-#set.seed(14837); (m1 = optimSplit_dichotom(
-#  PFS ~ marker, data = Ki67q_0, nsplit = 20L, 
-#  include = (highX > .15 & highX < .85), top = 2L)) 
 set.seed(14837); (m1 = optimSplit_dichotom(
   PFS ~ marker, data = Ki67q_0, nsplit = 20L, top = 2L)) 
-set.seed(14837); (m1a = optimSplit_dichotom(
-  PFS ~ marker, data = Ki67q_0, nsplit = 20L, 
-  include = (p1 > .15 & p1 < .85), top = 2L)) 
-
 predict(m1)
 predict(m1, boolean = FALSE)
 predict(m1, newdata = Ki67q_1) # using both quantile selected AND cutoff identified.

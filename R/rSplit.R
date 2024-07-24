@@ -1,5 +1,5 @@
 
-#' @title Random Split Sampling with Stratification
+#' @title Stratified Random Split Sampling
 #' 
 #' @description 
 #' Random split sampling, stratified based on the type of the response.
@@ -10,14 +10,13 @@
 #' or a \link[survival]{Surv} object, 
 #' response \eqn{y}
 #' 
-#' @param stratified \link[base]{logical} scalar, 
+#' @param stratify \link[base]{logical} scalar, 
 #' whether stratification based on response \eqn{y} needs to be implemented, default `TRUE`
 #' 
-#' @param nsplit positive \link[base]{integer} scalar, 
-#' \link[base]{replicate}s of random splits to be performed
+#' @param nsplit positive \link[base]{integer} scalar, number of \link[base]{replicate}s of random splits to be performed
 #' 
-#' @param trainFrac \link[base]{double} scalar between 0 and 1, 
-#' fraction of the training set, default `.8`
+#' @param s_ratio \link[base]{double} scalar between 0 and 1, 
+#' split ratio, i.e., percentage of training subjects \eqn{p}, default `.8`
 #' 
 #' @param ... additional parameters, currently not in use
 #' 
@@ -28,26 +27,26 @@
 #' 
 #' \itemize{
 #' 
-#' \item If `stratified = FALSE`, 
+#' \item If `stratify = FALSE`, 
 #' or if we have a \link[base]{double} response \eqn{y},
-#' then split the sample into a training and a test set by ratio `trainFrac`, without stratification.
+#' then split the sample into a training and a test set by odds \eqn{p/(1-p)}, without stratification.
 #' 
 #' \item Otherwise, split a \link[survival]{Surv} response \eqn{y}, stratified by its censoring status.
 #' Specifically, 
-#' split subjects with observed event into a training and a test set with training set fraction `trainFrac`,
-#' and split the censored subjects into a training and a test set with training set fraction `trainFrac`.
+#' split subjects with observed event into a training and a test set by odds \eqn{p/(1-p)},
+#' and split the censored subjects into a training and a test set by odds \eqn{p/(1-p)}.
 #' Then combine the training sets from subjects with observed events and censored subjects,
 #' and combine the test sets from subjects with observed events and censored subjects.
 #' 
 #' \item Otherwise, split a \link[base]{logical} response \eqn{y}, stratified by itself.
 #' Specifically, 
-#' split the subjects with `TRUE` response into a training and a test set with training set fraction `trainFrac`,
-#' and split the subjects with `FALSE` response into a training and a test set with training set fraction `trainFrac`.
+#' split the subjects with `TRUE` response into a training and a test set by odds \eqn{p/(1-p)},
+#' and split the subjects with `FALSE` response into a training and a test set by odds \eqn{p/(1-p)}.
 #' Then combine the training sets, and the test sets, in a similar fashion as described above.
 #' 
 #' \item Otherwise, split a \link[base]{factor} response \eqn{y}, stratified by its \link[base]{levels}.
 #' Specifically, 
-#' split the subjects in each level of \eqn{y} into a training and a test set by ratio `trainFrac`.
+#' split the subjects in each level of \eqn{y} into a training and a test set by odds \eqn{p/(1-p)}.
 #' Then combine the training sets, and the test sets, from all levels of \eqn{y}.
 #' 
 #' }
@@ -69,7 +68,7 @@
 #' @seealso \link[base]{split}, `caret::createDataPartition`
 #' @keywords internal
 #' @export 
-rSplit <- function(y, nsplit, stratified = TRUE, trainFrac = .8, ...) {
+rSplit <- function(y, nsplit, stratify = TRUE, s_ratio = .8, ...) {
   
   if (anyNA(y)) stop('do not allow missingness in the response, for now')
   
@@ -77,12 +76,12 @@ rSplit <- function(y, nsplit, stratified = TRUE, trainFrac = .8, ...) {
   ret0 <- rep(FALSE, times = n)
   # works correctly for ?survival::Surv object, via ?survival:::length.Surv
   
-  if (!stratified || is.vector(y, mode = 'numeric')) {
+  if (!stratify || is.vector(y, mode = 'numeric')) {
     # no stratification
     idx <- seq_len(n)
     
   } else if (inherits(y, what = 'Surv')) {
-    # stratified by censoring status
+    # stratify by censoring status
     if (dim(y)[2L] == 3L) stop('3-col Surv response not supported yet')
     xevent <- as.logical(y[,2L])
     idx <- list(
@@ -91,7 +90,7 @@ rSplit <- function(y, nsplit, stratified = TRUE, trainFrac = .8, ...) {
     )
 
   } else if (is.logical(y) || all(y %in% c(0, 1))) {
-    # stratified by the binary response
+    # stratify by the binary response
     y <- as.logical(y)
     idx <- list(
       which(!y), # 'integer' indices of non-responder
@@ -99,7 +98,7 @@ rSplit <- function(y, nsplit, stratified = TRUE, trainFrac = .8, ...) {
     )
 
   } else if (is.factor(y)) {
-    # stratified by the levels
+    # stratify by the levels
     idx <- lapply(seq_along(attr(y, which = 'levels', exact = TRUE)), FUN = function(i) {
       which(unclass(y) == i)
     })
@@ -108,7 +107,7 @@ rSplit <- function(y, nsplit, stratified = TRUE, trainFrac = .8, ...) {
   
   replicate(n = nsplit, expr = {
     idx_train <- lapply(idx, FUN = function(id) {
-      sample(id, size = floor(length(id) * trainFrac), replace = FALSE)
+      sample(id, size = floor(length(id) * s_ratio), replace = FALSE)
     })
     #train <- sort.int(unlist(idx_train, use.names = FALSE))
     #list(train = train, test = sort.int(setdiff(seq_len(n), y = train)))

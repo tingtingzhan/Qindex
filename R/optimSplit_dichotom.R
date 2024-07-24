@@ -3,14 +3,7 @@
 #' @title Optimal Dichotomizing Predictors via Repeated Sample Splits
 #' 
 #' @description
-#' 
-#' Functions explained in this documentation are,
-#' 
-#' \describe{
-#' \item{[optimSplit_dichotom]}{to identify the optimal dichotomizing predictors using repeated sample splits.}
-#' \item{[split_dichotom]}{helper function to perform a univariable regression model on the test set with a dichotomized predictor, using a dichotomizing rule determined by a recursive partitioning of the training set.}
-#' \item{[quantile.splits_dichotom]}{helper function to locate a quantile of multiple [split_dichotom] objects, based on the estimated univariable regression coefficient.}
-#' }
+#' To identify the optimal dichotomizing predictors using repeated sample splits.
 #' 
 #' @param formula,y,x two-sided \link[stats]{formula} `y~X` or `y~x1+x2`.
 #' Types of response \eqn{y} may be \link[base]{double}, \link[base]{logical} and \link[survival]{Surv}.
@@ -19,16 +12,17 @@
 #' 
 #' @param data \link[base]{data.frame}
 #' 
-#' @param include (optional) \link[base]{language}, inclusion criteria for the optimal dichotomizing predictors. 
-#' Default `(p1>.15 & p1<.85)` specifies a user-desired range of \eqn{p_1}.
+#' @param include (optional) \link[base]{language}, inclusion criteria. 
+#' Default `(p1>.15 & p1<.85)` specifies a user-desired range of \eqn{p_1}
+#' for the candidate dichotomizing predictors.
 #' See explanation of \eqn{p_1} in section **Returns of Helper Functions**.
 #' 
 #' @param top positive \link[base]{integer} scalar, number of optimal dichotomizing predictors, default `1L`
 #' 
 #' @param nsplit,... additional parameters for function [rSplit]
 #' 
-#' @param train \link[base]{logical} \link[base]{vector} for helper function [split_dichotom], indices of training (`TRUE`) and test (`FALSE`) subjects 
-#' @param trains (optional) \link[base]{list} of \link[base]{logical} \link[base]{vector}s for helper function [splits_dichotom], indices of multiple training-test sample splits.  
+#' @param id \link[base]{logical} \link[base]{vector} for helper function [split_dichotom], indices of training (`TRUE`) and test (`FALSE`) subjects 
+#' @param ids (optional) \link[base]{list} of \link[base]{logical} \link[base]{vector}s for helper function [splits_dichotom], multiple copies of indices of repeated training-test sample splits.  
 #' @param probs \link[base]{double} scalar for helper function [quantile.splits_dichotom], see \link[stats]{quantile}
 #' 
 #' 
@@ -38,70 +32,23 @@
 #' in the following steps,
 #' 
 #' \enumerate{
-#' 
-#' \item Generate multiple training-test sample splits, see [rSplit]
-#' 
-#' \item For each candidate predictor \eqn{x_i}, 
-#' find the median [split_dichotom] 
-#' (using helper function [quantile.splits_dichotom]) 
-#' of the multiple sample splits from Step 1.
-#' 
-#' \item (Optional) limit the selection in a subset of the candidate predictors to guarantee a user-desired range of \eqn{p_1} (see explanations in section **Returns of Helper Functions**);
-#' 
-#' \item Rank the candidate predictors, from either Step 2 or Step 3, 
-#' by the decreasing order of the \link[base]{abs}olute values of 
-#' the univariable regression coefficient estimate of the corresponding [split_dichotom] objects.
-#' 
+#' \item Generate multiple, i.e., repeated, training-test sample splits (via [rSplit])
+#' \item For each candidate predictor \eqn{x_i}, find the ***median-split-dichotomized regression model*** based on the repeated sample splits, see details in section **Details on Helper Functions**
+#' \item Limit the selection of the candidate predictors \eqn{x}'s to a user-desired range of \eqn{p_1} of the split-dichotomized regression models, see explanations of \eqn{p_1} in section **Returns of Helper Functions**
+#' \item Rank the candidate predictors \eqn{x}'s by the decreasing order of the \link[base]{abs}olute values of the regression coefficient estimate of the median-split-dichotomized regression models.  On the top of this rank are the *optimal dichotomizing predictors*.
 #' }
-#' 
-#' The *optimal dichotomizing predictors* are the ones
-#' with the largest \link[base]{abs}olute values of 
-#' the estimated univariable regression coefficients 
-#' of the corresponding [split_dichotom] objects.
-#' 
-#' 
 #' 
 #' @returns 
-#' Function [optimSplit_dichotom] returns an object of \link[base]{class} `'optimSplit_dichotom'`,
-#' which is a \link[base]{list} of dichotomizing \link[base]{function}s
-#' of \link[base]{length}-`top`.
-# which contains the response, 
-# and only the optimal dichotomizing predictors out of all candidate predictors.
-# Other variables in `data`, which are not specified in `formula`, are retained.
-# In addition, the dichotomized values of the optimal dichotomizing predictors,
-# according to their respective dichotomizing rules, are also included.
-#' The returned value has \link[base]{attributes},
-#' \describe{
-#' \item{`attr(,'formula')`}{
-#' input \link[stats]{formula}}
-#' \item{`attr(,'data')`}{
-#' input \link[base]{data.frame}}
-# \item{`attr(,'id_top')`}{
-# positive \link[base]{integer} scalar or \link[base]{vector},
-# the indices of the optimal dichotomizing predictors out of all candidate predictors.}
-# \item{`attr(,'top')`}{
-# a diagnostic \link[base]{data.frame} of 
-# the median [split_dichotom]s of each of the optimal dichotomizing predictors,
-# with columns 
-# \describe{
-# \item{`$cutoff`}{the cutoff threshold, identified in the training set}
-# \item{`$p1`}{
-# proportion of the dichotomizing predictors 
-# greater-than or greater-than-or-equal-to the cutoff threshold, in the test set}
-# \item{`$coef`}{
-# the estimated univariable regression coefficient of 
-# the dichotomized predictor, in the test set}
-# }
-# }
-#' }
+#' Function [optimSplit_dichotom] returns an object of \link[base]{class} `'optimSplit_dichotom'`, which is a \link[base]{list} of dichotomizing \link[base]{function}s, 
+#' with the input `formula` and `data` as additional \link[base]{attributes}.
 #' 
-#' 
+#' @examples 
+#' # see ?`Qindex-package`
 #' @rdname optimSplit_dichotom
 #' @export
 optimSplit_dichotom <- function(
     formula, data,
     include = quote(p1 > .15 & p1 < .85), # ?devtools::check warning
-    #include,
     top = 1L,
     nsplit,
     ...
@@ -109,7 +56,7 @@ optimSplit_dichotom <- function(
   
   cl <- match.call()
   y <- eval(formula[[2L]], envir = data)
-  trains <- rSplit(y, nsplit = nsplit, ...) # using same split for all predictors
+  ids <- rSplit(y, nsplit = nsplit, ...) # using same split for all predictors
   
   if (is.symbol(formula[[3L]])) {
     X <- eval(formula[[3L]], envir = data) # 'matrix' of predictors
@@ -123,7 +70,7 @@ optimSplit_dichotom <- function(
   #if (anyNA(X)) # it's okay now!
   
   tmp <- lapply(seq_len(dim(X)[2L]), FUN = function(p) {
-    tmp <- splits_dichotom(y = y, x = X[,p], trains = trains)
+    tmp <- splits_dichotom(y = y, x = X[,p], ids = ids)
     quantile.splits_dichotom(tmp, probs = .5)
   })
   mssd <- do.call(what = Map, args = c(list(f = c), lapply(tmp, FUN = function(i) attributes(i)[c('rule', 'text', 'p1', 'coef')])))
@@ -149,11 +96,17 @@ optimSplit_dichotom <- function(
   ret <- ret_rule[id_top]
   attr(ret, which = 'formula') <- formula
   attr(ret, which = 'data') <- data
-  #attr(ret, which = 'call') <- cl
   class(ret) <- 'optimSplit_dichotom'
   return(ret)
   
 }
+
+
+
+
+
+
+
 
 # @export
 #print.optimSplit_dichotom <- function(x, ...) {
@@ -222,13 +175,11 @@ predict.optimSplit_dichotom <- function(
     
     fom_ <- eval(call('~', quote(y), as.symbol(nm_)))
     
-    if (inherits(y, what = 'Surv')) {
-      suppressWarnings(do.call('coxph', args = list(formula = fom_)))
+    suppressWarnings(if (inherits(y, what = 'Surv')) {
+      do.call('coxph', args = list(formula = fom_))
     } else if (is.logical(y) || all(y %in% c(0, 1))) {
-      suppressWarnings(do.call('glm', args = list(formula = fom_, family = binomial(link = 'logit'))))
-    } else if (is.vector(y, mode = 'numeric')) {
-      suppressWarnings(do.call('lm', args = list(formula = fom_)))
-    }
+      do.call('glm', args = list(formula = fom_, family = binomial(link = 'logit')))
+    } else do.call('lm', args = list(formula = fom_)))
   })
   
   return(ret)
@@ -251,19 +202,19 @@ predict.optimSplit_dichotom <- function(
 
 #' @section Details on Helper Functions:
 #' 
-#' ## Univariable regression model with a split-dichotomized predictor
+#' ## Split-Dichotomized Regression Model
 #' 
 #' Helper function [split_dichotom] performs a univariable regression model on the test set with a dichotomized predictor, using a dichotomizing rule determined by a recursive partitioning of the training set. 
 #' Specifically, given a training-test sample split,
 #' \enumerate{
-#' \item find the *dichotomizing rule* \eqn{\mathcal{D}} of the predictor \eqn{x_0} given the response \eqn{y_0} in the training set, see [rpartD];
+#' \item find the *dichotomizing rule* \eqn{\mathcal{D}} of the predictor \eqn{x_0} given the response \eqn{y_0} in the training set (via [rpartD]);
 #' \item fit a univariable regression model of the response \eqn{y_1} with the dichotomized predictor \eqn{\mathcal{D}(x_1)} in the test set.
 #' }
 #' Currently the Cox proportional hazards (\link[survival]{coxph}) regression for \link[survival]{Surv} response, logistic (\link[stats]{glm}) regression for \link[base]{logical} response and linear (\link[stats]{lm}) regression for \link[stats]{gaussian} response are supported.
 #' 
 #' @section Returns of Helper Functions: 
 #' 
-#' Helper functions [split_dichotom] returns a [split_dichotom] object, which is either a Cox proportional hazards (\link[survival]{coxph}), a logistic (\link[stats]{glm}), or a linear (\link[stats]{lm}) regression model, with additional \link[base]{attributes}
+#' Helper function [split_dichotom] returns a split-dichotomized regression model, which is either a Cox proportional hazards (\link[survival]{coxph}), a logistic (\link[stats]{glm}), or a linear (\link[stats]{lm}) regression model, with additional \link[base]{attributes}
 #' 
 #' \describe{
 #' \item{`attr(,'rule')`}{\link[base]{function}, dichotomizing rule \eqn{\mathcal{D}} based on the training set}
@@ -276,12 +227,12 @@ predict.optimSplit_dichotom <- function(
 #' @importFrom stats lm glm binomial
 #' @rdname optimSplit_dichotom
 #' @export
-split_dichotom <- function(y, x, train, ...) {
+split_dichotom <- function(y, x, id, ...) {
   
-  # train: training set
-  # !train: test set
-  rule <- rpartD(y = y[train], x = x[train], check_degeneracy = TRUE)
-  dtest <- tryCatch(data.frame(y = y[!train], dx = rule(x[!train])), warning = identity)
+  # id: training set
+  # !id: test set
+  rule <- rpartD(y = y[id], x = x[id], check_degeneracy = TRUE)
+  dtest <- tryCatch(data.frame(y = y[!id], dx = rule(x[!id])), warning = identity)
   
   if (inherits(dtest, what = 'warning')) {
     # exception
@@ -290,18 +241,15 @@ split_dichotom <- function(y, x, train, ...) {
     return(mtest)
   }
   
-  mtest <- if (inherits(y, what = 'Surv')) {
-    suppressWarnings(coxph(formula = y ~ dx, data = dtest))
+  suppressWarnings(mtest <- if (inherits(y, what = 'Surv')) {
+    coxph(formula = y ~ dx, data = dtest)
   } else if (is.logical(y) || all(y %in% c(0, 1))) {
-    suppressWarnings(glm(formula = y ~ dx, family = binomial(link = 'logit'), data = dtest))
-  } else if (is.vector(y, mode = 'numeric')) {
-    suppressWarnings(lm(formula = y ~ dx, data = dtest))
-  }
+    glm(formula = y ~ dx, family = binomial(link = 'logit'), data = dtest)
+  } else lm(formula = y ~ dx, data = dtest))
   
   cf_test <- mtest$coefficients[length(mtest$coefficients)]
   attr(mtest, which = 'rule') <- rule
   attr(mtest, which = 'text') <- attr(dtest$dx, which = 'text', exact = TRUE)
-  #attr(mtest, which = 'highX') <- mean.default(dtest$dx, na.rm = TRUE)
   attr(mtest, which = 'p1') <- mean.default(dtest$dx, na.rm = TRUE)
   attr(mtest, which = 'coef') <- if (is.finite(cf_test)) unname(cf_test) else NA_real_
   
@@ -313,18 +261,18 @@ split_dichotom <- function(y, x, train, ...) {
 
 #' @section Details on Helper Functions:
 #' 
-#' ## List of [split_dichotom]s, based on multiple training-test sample splits
+#' ## Split-Dichotomized Regression Models based on Repeated Training-Test Sample Splits
 #' 
-#' Helper function [splits_dichotom] executes function [split_dichotom] on the response \eqn{y} and predictor \eqn{x}, based on multiple training-test sample splits.
+#' Helper function [splits_dichotom] fits multiple split-dichotomized regression models [split_dichotom] on the response \eqn{y} and predictor \eqn{x}, based on each copy of the lrepeated training-test sample splits.
 #' 
 #' @section Returns of Helper Functions: 
 #' 
-#' Helper functions [splits_dichotom] returns a \link[base]{list} of [split_dichotom] objects.
+#' Helper function [splits_dichotom] returns a \link[base]{list} of split-dichotomized regression models ([split_dichotom]).
 #' 
 #' @rdname optimSplit_dichotom
 #' @export
-splits_dichotom <- function(y, x, trains = rSplit(y, ...), ...) {
-  ret <- lapply(trains, FUN = function(i) split_dichotom(y, x, train = i, ...))
+splits_dichotom <- function(y, x, ids = rSplit(y, ...), ...) {
+  ret <- lapply(ids, FUN = function(id) split_dichotom(y, x, id = id, ...))
   class(ret) <- c('splits_dichotom', class(ret))
   return(ret)
 }
@@ -335,22 +283,22 @@ splits_dichotom <- function(y, x, trains = rSplit(y, ...), ...) {
 
 #' @section Details on Helper Functions:
 #' 
-#' ## Quantile of [splits_dichotom]
+#' ## Quantile of Split-Dichotomized Regression Models
 #' 
 #' Helper function [quantile.splits_dichotom] is a method dispatch of the S3 generic function \link[stats]{quantile} on [splits_dichotom] object.
 # finds the \link[stats]{quantile}
 # of the univariable regression coefficient (i.e., effect size) of a dichotomized predictor,
-# based on multiple given training-test sample splits.
+# based on repeated given training-test sample splits.
 #' Specifically,
 #' 
 #' \enumerate{
-#' \item {collect the univariable regression coefficient estimate from each [split_dichotom] element in the input [splits_dichotom] object;}
+#' \item {collect the univariable regression coefficient estimate from each one of the split-dichotomized regression models;}
 #' \item {find the nearest-even (i.e., `type = 3`) \link[stats]{quantile} of the coefficients from Step 1. By default, we use the \link[stats]{median} (i.e., `prob = .5`);}
-#' \item {the [split_dichotom] element corresponding to the selected coefficient quantile in Step 2, is returned.}
+#' \item {the split-dichotomized regression model corresponding to the selected coefficient quantile in Step 2, is returned.}
 #' }
 #' 
 #' @section Returns of Helper Functions: 
-#' Helper function [quantile.splits_dichotom] returns a [split_dichotom] object.
+#' Helper function [quantile.splits_dichotom] returns a split-dichotomized regression model ([split_dichotom]).
 #' 
 #' @importFrom stats quantile
 #' @rdname optimSplit_dichotom
