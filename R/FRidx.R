@@ -102,7 +102,7 @@ setClass(Class = 'FRidx', contains = 'numeric', slots = c(
 #' 
 #' \enumerate{
 #' 
-#' \item Fit a functional regression model (via function \link[mgcv]{gam}) 
+#' \item Fit a functional regression model (via \link[mgcv]{gam}) 
 #' of response \eqn{y} 
 #' with functional predictor \eqn{X};
 #' 

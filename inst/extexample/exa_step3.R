@@ -18,8 +18,8 @@ summary(coxph(PFS ~ NodeSt + Tstage + FR, data = Ki67q_1a))
 summary(coxph(PFS ~ NodeSt + Tstage + nlFR, data = Ki67q_1a))
 summary(coxph(PFS ~ NodeSt + Tstage + optS, data = Ki67q_1a))
 # set.seed if necessary
-summary(BBC_dichotom(PFS ~ NodeSt + Tstage, dichotom = ~ FR, data = Ki67q_1a))
+summary(BBC_dichotom(PFS ~ NodeSt + Tstage ~ FR, data = Ki67q_1a))
 # set.seed if necessary
-summary(BBC_dichotom(PFS ~ NodeSt + Tstage, dichotom = ~ nlFR, data = Ki67q_1a))
+summary(BBC_dichotom(PFS ~ NodeSt + Tstage ~ nlFR, data = Ki67q_1a))
 # set.seed if necessary
-summary(BBC_dichotom(PFS ~ NodeSt + Tstage, dichotom = ~ optS, data = Ki67q_1a))
+summary(BBC_dichotom(PFS ~ NodeSt + Tstage ~ optS, data = Ki67q_1a))
