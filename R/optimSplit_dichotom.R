@@ -5,7 +5,7 @@
 #' @description
 #' To identify the optimal dichotomizing predictors using repeated sample splits.
 #' 
-#' @param formula,y,x two-sided \link[stats]{formula} `y~X` or `y~x1+x2`.
+#' @param formula,y,x \link[stats]{formula}, e.g., `y~X` or `y~x1+x2`.
 #' Types of response \eqn{y} may be \link[base]{double}, \link[base]{logical} and \link[survival]{Surv}.
 #' Candidate \link[base]{numeric} predictors \eqn{x}'s may be specified as the columns of one \link[base]{matrix} column, e.g., `y~X`; or as several \link[base]{vector} columns, e.g., `y~x1+x2`.
 #' In helper functions, `x` is a \link[base]{numeric} \link[base]{vector}.
@@ -28,14 +28,13 @@
 #' 
 #' @details 
 #' 
-#' Function [optimSplit_dichotom] selects the optimal dichotomizing predictors via repeated sample splits 
-#' in the following steps,
+#' Function [optimSplit_dichotom] selects the optimal dichotomizing predictors via repeated sample splits. Specifically, 
 #' 
 #' \enumerate{
 #' \item Generate multiple, i.e., repeated, training-test sample splits (via [rSplit])
 #' \item For each candidate predictor \eqn{x_i}, find the ***median-split-dichotomized regression model*** based on the repeated sample splits, see details in section **Details on Helper Functions**
 #' \item Limit the selection of the candidate predictors \eqn{x}'s to a user-desired range of \eqn{p_1} of the split-dichotomized regression models, see explanations of \eqn{p_1} in section **Returns of Helper Functions**
-#' \item Rank the candidate predictors \eqn{x}'s by the decreasing order of the \link[base]{abs}olute values of the regression coefficient estimate of the median-split-dichotomized regression models.  On the top of this rank are the *optimal dichotomizing predictors*.
+#' \item Rank the candidate predictors \eqn{x}'s by the decreasing order of the \link[base]{abs}olute values of the regression coefficient estimate of the median-split-dichotomized regression models.  On the top of this rank are the ***optimal dichotomizing predictors***.
 #' }
 #' 
 #' @returns 
@@ -102,23 +101,28 @@ optimSplit_dichotom <- function(
 }
 
 
+#' @export
+`[.optimSplit_dichotom` <- function(x, i) {
+  ret <- unclass(x)[i] # NOT `[[`
+  attr(ret, which = 'formula') <- attr(x, which = 'formula', exact = TRUE)
+  attr(ret, which = 'data') <- attr(x, which = 'data', exact = TRUE)
+  class(ret) <- 'optimSplit_dichotom'
+  return(ret)
+}
 
 
 
 
-
-
-# @export
-#print.optimSplit_dichotom <- function(x, ...) {
-#  .Defunct(msg = 'no need for now')
-#  mapply(FUN = function(rule, nm) {
-#    ret <- body(rule)[[2L]][[3L]][[2L]]
-#    ret[[2L]] <- as.symbol(nm)
-#    print(ret)
-#    return(invisible())
-#  }, rule = x, nm = names(x))
-#  return(invisible())
-#}
+#' @export
+print.optimSplit_dichotom <- function(x, ...) {
+  lapply(x, FUN = function(rule) { # (rule = x[[1L]])
+    out <- body(rule)[[2L]][[3L]][[2L]]
+    out[[2L]] <- as.list.function(rule)[[1L]]
+    print(out)
+    return(invisible())
+  })
+  return(invisible())
+}
 
 
 
@@ -178,7 +182,7 @@ predict.optimSplit_dichotom <- function(
     suppressWarnings(if (inherits(y, what = 'Surv')) {
       do.call('coxph', args = list(formula = fom_))
     } else if (is.logical(y) || all(y %in% c(0, 1))) {
-      do.call('glm', args = list(formula = fom_, family = binomial(link = 'logit')))
+      do.call('glm', args = list(formula = fom_, family = quote(binomial(link = 'logit'))))
     } else do.call('lm', args = list(formula = fom_)))
   })
   
@@ -263,7 +267,7 @@ split_dichotom <- function(y, x, id, ...) {
 #' 
 #' ## Split-Dichotomized Regression Models based on Repeated Training-Test Sample Splits
 #' 
-#' Helper function [splits_dichotom] fits multiple split-dichotomized regression models [split_dichotom] on the response \eqn{y} and predictor \eqn{x}, based on each copy of the lrepeated training-test sample splits.
+#' Helper function [splits_dichotom] fits multiple split-dichotomized regression models [split_dichotom] on the response \eqn{y} and predictor \eqn{x}, based on each copy of the repeated training-test sample splits.
 #' 
 #' @section Returns of Helper Functions: 
 #' 

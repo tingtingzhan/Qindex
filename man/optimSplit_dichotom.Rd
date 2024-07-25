@@ -23,7 +23,7 @@ splits_dichotom(y, x, ids = rSplit(y, ...), ...)
 \method{quantile}{splits_dichotom}(x, probs = 0.5, ...)
 }
 \arguments{
-\item{formula, y, x}{two-sided \link[stats]{formula} \code{y~X} or \code{y~x1+x2}.
+\item{formula, y, x}{\link[stats]{formula}, e.g., \code{y~X} or \code{y~x1+x2}.
 Types of response \eqn{y} may be \link[base]{double}, \link[base]{logical} and \link[survival]{Surv}.
 Candidate \link[base]{numeric} predictors \eqn{x}'s may be specified as the columns of one \link[base]{matrix} column, e.g., \code{y~X}; or as several \link[base]{vector} columns, e.g., \code{y~x1+x2}.
 In helper functions, \code{x} is a \link[base]{numeric} \link[base]{vector}.}
@@ -53,14 +53,13 @@ with the input \code{formula} and \code{data} as additional \link[base]{attribut
 To identify the optimal dichotomizing predictors using repeated sample splits.
 }
 \details{
-Function \link{optimSplit_dichotom} selects the optimal dichotomizing predictors via repeated sample splits
-in the following steps,
+Function \link{optimSplit_dichotom} selects the optimal dichotomizing predictors via repeated sample splits. Specifically,
 
 \enumerate{
 \item Generate multiple, i.e., repeated, training-test sample splits (via \link{rSplit})
 \item For each candidate predictor \eqn{x_i}, find the \emph{\strong{median-split-dichotomized regression model}} based on the repeated sample splits, see details in section \strong{Details on Helper Functions}
 \item Limit the selection of the candidate predictors \eqn{x}'s to a user-desired range of \eqn{p_1} of the split-dichotomized regression models, see explanations of \eqn{p_1} in section \strong{Returns of Helper Functions}
-\item Rank the candidate predictors \eqn{x}'s by the decreasing order of the \link[base]{abs}olute values of the regression coefficient estimate of the median-split-dichotomized regression models.  On the top of this rank are the \emph{optimal dichotomizing predictors}.
+\item Rank the candidate predictors \eqn{x}'s by the decreasing order of the \link[base]{abs}olute values of the regression coefficient estimate of the median-split-dichotomized regression models.  On the top of this rank are the \emph{\strong{optimal dichotomizing predictors}}.
 }
 }
 \section{Details on Helper Functions}{
@@ -79,7 +78,7 @@ Currently the Cox proportional hazards (\link[survival]{coxph}) regression for \
 
 \subsection{Split-Dichotomized Regression Models based on Repeated Training-Test Sample Splits}{
 
-Helper function \link{splits_dichotom} fits multiple split-dichotomized regression models \link{split_dichotom} on the response \eqn{y} and predictor \eqn{x}, based on each copy of the lrepeated training-test sample splits.
+Helper function \link{splits_dichotom} fits multiple split-dichotomized regression models \link{split_dichotom} on the response \eqn{y} and predictor \eqn{x}, based on each copy of the repeated training-test sample splits.
 }
 
 

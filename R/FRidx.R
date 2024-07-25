@@ -48,14 +48,14 @@ setClass(Class = 'FRidx', contains = 'numeric', slots = c(
 
 #' @rdname FRidx
 #' 
-#' @param formula a two-sided \link[stats]{formula} `y~X`. 
+#' @param formula \link[stats]{formula}, e.g., `y~X`. 
 #' Types of response \eqn{y} may be \link[base]{double}, \link[base]{logical} and \link[survival]{Surv}.
 #' Functional predictor \eqn{X} is a tabulated \link[base]{double} \link[base]{matrix};
 #' the rows of \eqn{X} correspond to the subjects, 
 #' while the columns of \eqn{X} correspond to a *common tabulating grid* shared by all subjects.
 #' The \link[base]{numeric} values of the grid are in the \link[base]{colnames} of \eqn{X}
 #' 
-#' @param data \link[base]{data.frame}, e.g., returned from function [clusterQp]
+#' @param data \link[base]{data.frame}, e.g., returned object from function [clusterQp]
 #' 
 #' @param sign_prob \link[base]{double} scalar between 0 and 1,
 #' probability corresponding to 

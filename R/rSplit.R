@@ -76,9 +76,9 @@ rSplit <- function(y, nsplit, stratify = TRUE, s_ratio = .8, ...) {
   ret0 <- rep(FALSE, times = n)
   # works correctly for ?survival::Surv object, via ?survival:::length.Surv
   
-  if (!stratify || is.vector(y, mode = 'numeric')) {
+  if (!stratify) {
     # no stratification
-    idx <- seq_len(n)
+    idx <- list(seq_len(n))
     
   } else if (inherits(y, what = 'Surv')) {
     # stratify by censoring status
@@ -102,6 +102,10 @@ rSplit <- function(y, nsplit, stratify = TRUE, s_ratio = .8, ...) {
     idx <- lapply(seq_along(attr(y, which = 'levels', exact = TRUE)), FUN = function(i) {
       which(unclass(y) == i)
     })
+    
+  } else if (is.vector(y, mode = 'numeric')) { # must after `binary` if
+    # no stratification
+    idx <- list(seq_len(n))
     
   } else stop('unsupported class: ', class(y)[1L])
   

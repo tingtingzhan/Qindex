@@ -80,7 +80,8 @@
 #' dim(flchain3 <- subset(flchain2, futime > 0)) # required by ?rpart::rpart
 #' dim(flchain_Circulatory <- subset(flchain3, chapter == 'Circulatory'))
 #' 
-#' m1 = BBC_dichotom(Surv(futime, death) ~ age + sex + mgus ~ kappa + lambda, data = flchain_Circulatory)
+#' m1 = BBC_dichotom(Surv(futime, death) ~ age + sex + mgus ~ kappa + lambda, 
+#'  data = flchain_Circulatory)
 #' summary(m1)
 #' attr(attr(m1, 'optimism'), 'cutoff')
 #' attr(m1, 'apparent_cutoff')

@@ -88,7 +88,7 @@ set.seed(14837); (m1 = optimSplit_dichotom(
   PFS ~ marker, data = Ki67q_0, nsplit = 20L, top = 2L)) 
 predict(m1)
 predict(m1, boolean = FALSE)
-predict(m1, newdata = Ki67q_1) # using both quantile selected AND cutoff identified.
+predict(m1, newdata = Ki67q_1)
 
 ### Step 3 (after Step 1 & 2)
 
