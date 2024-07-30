@@ -57,6 +57,7 @@ Ki67c = within(Ki67[complete.cases(Ki67), , drop = FALSE], expr = {
 
 Ki67q = clusterQp(marker ~ . - tissueID - inner_x - inner_y | PATIENT_ID, data = Ki67c)
 stopifnot(is.matrix(Ki67q$marker))
+head(Ki67q$marker, n = c(4L, 6L))
 
 set.seed(234); id = sort.int(sample.int(n = npt, size = 480L))
 Ki67q_0 = Ki67q[id, , drop = FALSE] # training set
@@ -110,6 +111,8 @@ summary(coxph(PFS ~ NodeSt + Tstage + nlFR, data = Ki67q_1a))
 summary(coxph(PFS ~ NodeSt + Tstage + optS, data = Ki67q_1a))
 # set.seed if necessary
 summary(BBC_dichotom(PFS ~ NodeSt + Tstage ~ FR, data = Ki67q_1a))
+# `NodeSt`, `Tstage`: predctors to be used as-is
+# `FR` to be dichotomized
 # set.seed if necessary
 summary(BBC_dichotom(PFS ~ NodeSt + Tstage ~ nlFR, data = Ki67q_1a))
 # set.seed if necessary

@@ -152,7 +152,11 @@ clusterQp <- function(
     
   }
   
-  colnames(ret[[y]]) <- probs
+  dimnames(ret[[y]]) <- list(
+    if (is.symbol(cls_call)) as.character(eval(cls_call, envir = ret)) else stop('will be quick fix'),
+    probs
+  )
+  
   return(ret)
   
 }
