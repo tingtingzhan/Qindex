@@ -19,6 +19,8 @@ summary(coxph(PFS ~ NodeSt + Tstage + nlFR, data = Ki67q_1a))
 summary(coxph(PFS ~ NodeSt + Tstage + optS, data = Ki67q_1a))
 # set.seed if necessary
 summary(BBC_dichotom(PFS ~ NodeSt + Tstage ~ FR, data = Ki67q_1a))
+# `NodeSt`, `Tstage`: predctors to be used as-is
+# `FR` to be dichotomized
 # set.seed if necessary
 summary(BBC_dichotom(PFS ~ NodeSt + Tstage ~ nlFR, data = Ki67q_1a))
 # set.seed if necessary

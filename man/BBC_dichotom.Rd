@@ -24,7 +24,7 @@ Additional predictors \eqn{z}'s, if any, may be of any type.}
 
 \item{fom}{\link[stats]{formula}, e.g., \code{y~z} or \code{y~1}, for helper functions, with the response \eqn{y} and additional predictors \eqn{z}'s, if any}
 
-\item{X}{\link[base]{numeric} \link[base]{matrix} \eqn{X} of \eqn{k} columns,
+\item{X}{\link[base]{numeric} \link[base]{matrix} of \eqn{k} columns,
 \link[base]{numeric} predictors \eqn{x_1,\cdots,x_k} to be dichotomized}
 
 \item{R}{positive \link[base]{integer} scalar,
@@ -115,8 +115,11 @@ fits a multivariable Cox proportional hazards (\link[survival]{coxph}) model for
 logistic (\link[stats]{glm}) regression model for \link[base]{logical} response,
 or linear (\link[stats]{lm}) regression model for \link[stats]{gaussian} response,
 with
-the dichotomous \link[base]{logical} predictors \eqn{\tilde{x}}'s (i.e., the \link[base]{unique} columns of \eqn{\tilde{X}}) as well as
+the dichotomized predictors \eqn{\tilde{x}_1,\cdots,\tilde{x}_k} as well as
 the additional predictors \eqn{z}'s.
+
+It is almost inevitable to have duplicates among the dichotomized predictors \eqn{\tilde{x}_1,\cdots,\tilde{x}_k}.
+In such case, the multivariable model is fitted using the unique \eqn{\tilde{x}}'s.
 }
 }
 
@@ -137,11 +140,12 @@ See attribute \code{'cutoff'} of function \link{m_rpartD}}
 
 \subsection{Of helper function \link{coef_dichotom}}{
 
-Helper function \link{coef_dichotom} returns a \link[base]{double} \link[base]{vector} of the
-\link[stats]{coef}ficients of dichotomized predictors \eqn{\tilde{x}}'s, with \link[base]{attributes}
+Helper function \link{coef_dichotom} returns a \link[base]{double} \link[base]{vector} of
+the regression \link[stats]{coef}ficients of dichotomized predictors \eqn{\tilde{x}}'s, with \link[base]{attributes}
 \describe{
 \item{\code{attr(,'model')}}{the \link[survival]{coxph}, \link[stats]{glm} or \link[stats]{lm} regression model}
 }
+In the case of duplicated \eqn{\tilde{x}}'s, the regression coefficients of the unique \eqn{\tilde{x}}'s are duplicated for those duplicates in \eqn{\tilde{x}}'s.
 }
 }
 
