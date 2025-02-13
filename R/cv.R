@@ -17,7 +17,7 @@
 #' 
 #' lung_CV_QI = Qindex_cv(OS ~ hladr.quantile, data = lungQp, k = 5L, nonlinear = FALSE)
 #' head(lung_CV_QI)   
-#' boxplot(QI ~ folds., data=lung_CV_QI) 
+#' boxplot(QI ~ folds., data = lung_CV_QI) 
 #' library(survival)
 #' summary(coxph(OS ~ QI, data = lung_CV_QI))
 #' 
