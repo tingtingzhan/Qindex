@@ -17,7 +17,9 @@
 #' 
 #' lung_CV_QI = Qindex_cv(OS ~ hladr.quantile, data = lungQp, k = 10L, nonlinear = FALSE)
 #' head(lung_CV_QI)   
-#' boxplot(QI ~ folds., data = lung_CV_QI) 
+#' boxplot(QI_notAdj ~ folds., data = lung_CV_QI) 
+#' boxplot(QI_sgnAdj ~ folds., data = lung_CV_QI) 
+#' boxplot(QI_globalAdj ~ folds., data = lung_CV_QI) 
 #' table(attr(lung_CV_QI, 'sign'))
 #' library(survival)
 #' summary(coxph(OS ~ QI_notAdj, data = lung_CV_QI))
