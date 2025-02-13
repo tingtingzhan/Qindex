@@ -1,0 +1,30 @@
+Package: Qindex
+Type: Package
+Title: Continuous and Dichotomized Index Predictors Based on
+        Distribution Quantiles
+Version: 0.1.7
+Date: 2024-11-14
+Description: Select optimal functional regression or dichotomized
+       quantile predictors for survival/logistic/numeric outcome
+       and perform optimistic bias correction for any optimally
+       dichotomized numeric predictor(s), as in Yi, et. al.
+       (2023) <doi:10.1016/j.labinv.2023.100158>.
+RoxygenNote: 7.3.2
+Encoding: UTF-8
+License: GPL-2
+Depends: R (>= 4.4)
+Language: en-US
+Authors@R: c(person(given = 'Tingting', family = 'Zhan', role =
+       c('aut', 'cre'), email =
+       c('tingtingzhan@gmail.com'), comment = c(ORCID =
+       '0000-0001-9971-4844')), person(given = 'Misung', family =
+       'Yi', role = c('aut'), email =
+       'misung.yi@dankook.ac.kr', comment = c(ORCID =
+       '0000-0002-4007-5408')), person(given = 'Inna', family =
+       'Chervoneva', role = c('aut'), email =
+       'Inna.Chervoneva@jefferson.edu', comment = c(ORCID =
+       '0000-0002-9104-4505')))
+Imports: caret, gam.matrix
+Suggests: knitr, survival, spatstat.grouped, spatstat.grouped.data
+NeedsCompilation: no
+Maintainer: Tingting Zhan <tingtingzhan@gmail.com>
