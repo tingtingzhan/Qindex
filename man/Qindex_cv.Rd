@@ -24,10 +24,13 @@ library(spatstat.grouped)
 lungQp = grouped_ppp(hladr ~ OS | patient_id/image_id, f_sum_ = 'min', data = wrobel_lung) |> 
  aggregate_quantile(by = ~ patient_id, probs = seq.int(from = .05, to = .95, by = .01))
 
-lung_CV_QI = Qindex_cv(OS ~ hladr.quantile, data = lungQp, k = 5L, nonlinear = FALSE)
+lung_CV_QI = Qindex_cv(OS ~ hladr.quantile, data = lungQp, k = 10L, nonlinear = FALSE)
 head(lung_CV_QI)   
-boxplot(QI ~ folds., data=lung_CV_QI) 
+boxplot(QI ~ folds., data = lung_CV_QI) 
+table(attr(lung_CV_QI, 'sign'))
 library(survival)
-summary(coxph(OS ~ QI, data = lung_CV_QI))
+summary(coxph(OS ~ QI_notAdj, data = lung_CV_QI))
+summary(coxph(OS ~ QI_sgnAdj, data = lung_CV_QI))
+summary(coxph(OS ~ QI_globalAdj, data = lung_CV_QI))
 
 }
