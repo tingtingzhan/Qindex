@@ -12,7 +12,7 @@ Description: Select optimal functional regression or dichotomized
 RoxygenNote: 7.3.2
 Encoding: UTF-8
 License: GPL-2
-Depends: R (>= 4.4)
+Depends: R (>= 4.4), boc, gam.matrix, maxEff, spatstat.grouped, spatstat.grouped.data
 Language: en-US
 Authors@R: c(person(given = 'Tingting', family = 'Zhan', role =
        c('aut', 'cre'), email =
@@ -24,7 +24,6 @@ Authors@R: c(person(given = 'Tingting', family = 'Zhan', role =
        'Chervoneva', role = c('aut'), email =
        'Inna.Chervoneva@jefferson.edu', comment = c(ORCID =
        '0000-0002-9104-4505')))
-Imports: caret, gam.matrix
-Suggests: knitr, survival, spatstat.grouped, spatstat.grouped.data
+Suggests: knitr, survival
 NeedsCompilation: no
 Maintainer: Tingting Zhan <tingtingzhan@gmail.com>

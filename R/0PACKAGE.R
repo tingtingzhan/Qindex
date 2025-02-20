@@ -1,3 +1,10 @@
+
+
+
+#' @title Qindex 
+#' 
+#' @description
+#' ..
 #' 
 #' 
 # @references 
@@ -10,3 +17,10 @@
 # Hai Hu, Yunguang Sun, Hallgeir Rui and Inna Chervoneva. 
 # Laboratory Investigation, 2023. \doi{10.1016/j.labinv.2023.100158}
 #' 
+#' 
+#' @import boc
+#' @import gam.matrix
+#' @import maxEff
+#' @import spatstat.grouped
+#' @import spatstat.grouped.data 
+'_PACKAGE'

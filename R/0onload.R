@@ -1,10 +1,24 @@
 
 
-.onLoad <- function(libname, pkgname = 'Qindex') {
+.onAttach <- function(libname, pkgname = 'Qindex') {
+
+  # NOTHING NEEDED HERE!!!
   
-  library(spatstat.grouped)
-  library(maxEff) # previous [optim_split_etc].
-  library(boc) # previous [BBC_dichotom] function 
-  library(gam.matrix) # previous [Qindex] function
+  # use Depends
+  # and 
+  # force @import
+  
+  # using base::library gives me error on devtools::check
+  
+  # base::requireNamespace
+  # .. requires end-user to library
+  # .. prints message 'Loading required namespace: pkg'
+  
+  # base::require
+  
+  #require(spatstat.grouped)
+  #require(maxEff) # previous [optim_split_etc].
+  #require(boc) # previous [BBC_dichotom] function 
+  #require(gam.matrix) # previous [Qindex] function
   
 }
